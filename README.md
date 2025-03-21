@@ -25,8 +25,8 @@ To run the app locally, follow these steps:
 
 1. **Clone the repository**:
     ```sh
-    git clone https://github.com/SmartWorkMCD/Hand_Tracking.git
-    cd Hand_Tracking
+    git clone https://github.com/SmartWorkMCD/Object_Detection.git
+    cd Object_Detection
     ```
 
 2. **Create a virtual environment and activate it**:
