@@ -1,74 +1,46 @@
-import cv2
-import time
-
-########################################
-
-# Flip camera
-FLIP_CAMERA_VERTICALLY = False
-FLIP_CAMERA_HORIZONTALLY = True
-
-# Show camera
-SHOW_CAMERA_OUTPUT = True
-
-# Capture images
-CAPTURE_IMAGES_EVERY_SECOND = False
-CAPTURE_IMAGES_ON_COMMAND = False
-CAPTURING_IMAGES = CAPTURE_IMAGES_EVERY_SECOND or CAPTURE_IMAGES_ON_COMMAND
-
-# Save video
-SAVE_VIDEO = True
-
-########################################
+from classes.CameraCapture import CameraCapture
+from functions import parse_arguments
 
 
-def main() -> None:
-    cap = cv2.VideoCapture(0)
+def main():
+    """Main entry point."""
+    try:
+        # Check if running on Raspberry Pi
+        try:
+            with open("/proc/device-tree/model", "r") as f:
+                model = f.read()
+                if "Raspberry Pi" in model:
+                    print(f"Detected: {model.strip('\0')}")
+        except:
+            pass
 
-    if CAPTURING_IMAGES:
-        last_saved_time = time.time()
+        # For backwards compatibility, use config from code if running directly
+        if __name__ == "__main__":
+            # Use command line arguments if provided, otherwise use defaults
+            import sys
 
-    if SAVE_VIDEO:
-        out = cv2.VideoWriter(
-            f"data/videos/{int(time.time())}.mp4",
-            cv2.VideoWriter_fourcc(*"mp4v"),
-            5.0,
-            (640, 480),
-        )
+            if len(sys.argv) > 1:
+                config = parse_arguments()
+            else:
+                config = {
+                    "camera_id": 0,
+                    "flip_vertical": False,
+                    "flip_horizontal": False,
+                    "show_output": True,
+                    "capture_interval": None,  # CAPTURE_IMAGES_EVERY_SECOND
+                    "save_video": False,
+                    "resolution": (1080, 720),  # C925e default HD resolution
+                    "fps": 30.0,
+                    "output_dir": "data",
+                    "codec": "avc1",
+                }
 
-    while cap.isOpened():
-        ret, frame = cap.read()
-
-        if FLIP_CAMERA_VERTICALLY:
-            frame = cv2.flip(frame, 0)
-
-        if FLIP_CAMERA_HORIZONTALLY:
-            frame = cv2.flip(frame, 1)
-
-        if not ret:
-            break
-
-        if SHOW_CAMERA_OUTPUT:
-            cv2.imshow("Object Recognition", frame)
-            if cv2.waitKey(1) & 0xFF == ord("q"):
-                break
-
-        if CAPTURING_IMAGES:
-            current_time = time.time()
-
-            if CAPTURE_IMAGES_EVERY_SECOND:
-                if current_time - last_saved_time >= 1:
-                    cv2.imwrite(f"data/frames/{int(time.time())}.jpg", frame)
-                    last_saved_time = current_time
-            elif CAPTURE_IMAGES_ON_COMMAND:
-                if cv2.waitKey(1) & 0xFF == ord("s"):
-                    cv2.imwrite(f"data/frames/{int(time.time())}.jpg", frame)
-
-        if SAVE_VIDEO:
-            out.write(frame)
-
-    cap.release()
-    out.release()
-    cv2.destroyAllWindows()
+        camera = CameraCapture(**config)
+        camera.run()
+    except KeyboardInterrupt:
+        print("\nProgram interrupted by user")
+    except Exception as e:
+        print(f"Error: {e}")
 
 
 if __name__ == "__main__":
