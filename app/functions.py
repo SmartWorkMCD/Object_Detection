@@ -4,15 +4,12 @@ import numpy as np
 import os
 
 
-def extract_video_frames(video_path, output_dir=None, log=False):
+def extract_video_frames(video_path):
     """
     Extract frames from a video file and save them in a numbered sequence.
 
     Args:
         video_path (str): Full path to the input video file
-        output_dir (str, optional): Directory to save extracted frames.
-                                    If None, uses a folder in the frames directory
-                                    with the same name as the video file.
     """
     # Validate input video file
     if not os.path.exists(video_path):
@@ -33,11 +30,9 @@ def extract_video_frames(video_path, output_dir=None, log=False):
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
-    # Determine output directory
-    if output_dir is None:
-        # Create directory in frames folder with video filename (without extension)
-        video_filename = os.path.splitext(os.path.basename(video_path))[0]
-        output_dir = os.path.join("data", "frames", video_filename)
+    # Create directory in frames folder with video filename (without extension)
+    video_filename = os.path.splitext(os.path.basename(video_path))[0]
+    output_dir = os.path.join("data", "frames", video_filename)
 
     # Create output directory if it doesn't exist
     os.makedirs(output_dir, exist_ok=True)
@@ -57,10 +52,6 @@ def extract_video_frames(video_path, output_dir=None, log=False):
         # Save frame
         cv2.imwrite(frame_filename, frame)
         extracted_count += 1
-
-        # Optional: Print progress periodically
-        if log and extracted_count % 100 == 0:
-            print(f"Extracted {extracted_count}/{total_frames} frames")
 
     # Release video capture object
     cap.release()
@@ -103,8 +94,8 @@ def hash_frame(frame, hash_size=8):
     return hash_hex
 
 
-def parse_arguments() -> dict:
-    """Parse command line arguments."""
+def parse_main_arguments():
+    """Parse command line arguments for the main camera capture script."""
     parser = argparse.ArgumentParser(
         description="Camera capture for Logitech C925e on Raspberry Pi"
     )
@@ -152,6 +143,51 @@ def parse_arguments() -> dict:
         "output_dir": args.output_dir,
         "codec": args.codec,
     }
+
+
+def parse_util_arguments():
+    """Parse command line arguments for the utility script."""
+    parser = argparse.ArgumentParser(description="Utility functions for video frames")
+    parser.add_argument("--video", help="Path to a video file for frame extraction")
+    parser.add_argument(
+        "--output-dir", help="Output directory for saving extracted frames"
+    )
+    parser.add_argument(
+        "--log", action="store_true", help="Show detailed extraction progress"
+    )
+    parser.add_argument(
+        "--extract-frames",
+        action="store_true",
+        help="Extract frames from each video in the data/videos directory",
+    )
+    parser.add_argument(
+        "--remove-duplicates",
+        action="store_true",
+        help="Remove duplicate frames from each extracted frames directory",
+    )
+    parser.add_argument(
+        "--renumber-frames",
+        action="store_true",
+        help="Renumber frames sequentially in each extracted frames directory (after manual removal)",
+    )
+
+    return parser.parse_args()
+
+
+def process_frame_directories(directory, process_function, *args):
+    """Helper function to process all frame directories."""
+    for file in os.listdir(directory):
+        file_path = os.path.join(directory, file)
+        if os.path.isdir(file_path):
+            process_function(file_path, *args)
+
+
+def process_videos_in_directory(directory, process_function, *args):
+    """Helper function to process all videos in a directory."""
+    for file in os.listdir(directory):
+        if file.endswith(".mp4"):
+            file_path = os.path.join(directory, file)
+            process_function(file_path, *args)
 
 
 def remove_duplicate_frames(frames_dir):
