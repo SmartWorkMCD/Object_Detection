@@ -1,5 +1,6 @@
 import argparse
 import cv2
+import numpy as np
 import os
 
 
@@ -70,6 +71,38 @@ def extract_video_frames(video_path, output_dir=None, log=False):
     print(f"Video details: {width}x{height} at {fps:.2f} FPS")
 
 
+def hash_frame(frame, hash_size=8):
+    """
+    Create a perceptual hash of the frame to identify similar images.
+
+    Args:
+        frame (numpy.ndarray): Input image frame
+        hash_size (int): Size of the hash (smaller = more lenient matching)
+
+    Returns:
+        str: Perceptual hash of the frame
+    """
+    # Convert to grayscale and resize
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    resized = cv2.resize(gray, (hash_size, hash_size), interpolation=cv2.INTER_AREA)
+
+    # Compute the DCT (Discrete Cosine Transform)
+    dct = cv2.dct(np.float32(resized))
+
+    # Use the top-left corner of the DCT coefficients
+    dct_low_freq = dct[:hash_size, :hash_size]
+
+    # Compute the median
+    median = np.median(dct_low_freq)
+
+    # Create hash based on whether each coefficient is above/below median
+    hash_bits = (dct_low_freq > median).flatten()
+
+    # Convert to hex string for compact representation
+    hash_hex = "".join(["1" if bit else "0" for bit in hash_bits])
+    return hash_hex
+
+
 def parse_arguments() -> dict:
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(
@@ -119,3 +152,99 @@ def parse_arguments() -> dict:
         "output_dir": args.output_dir,
         "codec": args.codec,
     }
+
+
+def remove_duplicate_frames(frames_dir):
+    """
+    Remove duplicate frames from a directory, keeping only unique images.
+
+    Args:
+        frames_dir (str): Path to the directory containing frame images
+    """
+    # Validate input directory
+    if not os.path.exists(frames_dir):
+        print(f"Error: Directory {frames_dir} does not exist.")
+        return
+
+    # Get all image files, sorted by their numeric filename
+    def frame_key(filename):
+        try:
+            return int(os.path.splitext(filename)[0])
+        except ValueError:
+            return float("inf")
+
+    frame_files = sorted(
+        [f for f in os.listdir(frames_dir) if f.lower().endswith(".jpg")],
+        key=frame_key,
+    )
+
+    # If no frames found
+    if not frame_files:
+        print(f"No image files found in {frames_dir}")
+        return
+
+    # Track unique frames
+    unique_frames = {}
+    removed_frames = []
+
+    # Process frames
+    for frame_file in frame_files:
+        frame_path = os.path.join(frames_dir, frame_file)
+
+        # Read the frame
+        frame = cv2.imread(frame_path)
+
+        # Skip if image can't be read
+        if frame is None:
+            print(f"Warning: Could not read {frame_file}")
+            continue
+
+        # Create a hash of the frame to identify duplicates
+        frame_hash = hash_frame(frame)
+
+        # If this frame is unique, keep it
+        if frame_hash not in unique_frames:
+            unique_frames[frame_hash] = frame_file
+        else:
+            # If duplicate, mark for removal
+            removed_frames.append(frame_file)
+            os.remove(frame_path)
+
+    # Renumber remaining frames sequentially
+    renumber_frames(frames_dir)
+
+    # Print summary
+    print(f"\nDuplicate Frame Removal Summary (video {os.path.basename(frames_dir)}):")
+    print(f"Total original frames: {len(frame_files)}")
+    print(f"Unique frames kept: {len(unique_frames)}")
+    print(f"Frames removed: {len(removed_frames)}")
+
+
+def renumber_frames(frames_dir):
+    """
+    Renumber frames sequentially starting from 0.
+
+    Args:
+        frames_dir (str): Path to the directory containing frame images
+    """
+
+    # Get all image files, sorted by their current filename
+    def frame_key(filename):
+        try:
+            return int(os.path.splitext(filename)[0])
+        except ValueError:
+            return float("inf")
+
+    frame_files = sorted(
+        [f for f in os.listdir(frames_dir) if f.lower().endswith(".jpg")],
+        key=frame_key,
+    )
+
+    # Rename files sequentially
+    for new_index, old_filename in enumerate(frame_files):
+        old_path = os.path.join(frames_dir, old_filename)
+        new_filename = f"{new_index}.jpg"
+        new_path = os.path.join(frames_dir, new_filename)
+
+        # Rename the file
+        os.rename(old_path, new_path)
