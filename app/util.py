@@ -1,19 +1,53 @@
-from functions import extract_video_frames, remove_duplicate_frames
 import os
+import sys
+from functions import (
+    extract_video_frames,
+    parse_util_arguments,
+    process_frame_directories,
+    process_videos_in_directory,
+    remove_duplicate_frames,
+    renumber_frames,
+)
 
 
 def main():
-    # Extract frames from all videos in the data/videos directory
-    for video in os.listdir("data/videos"):
-        if video.endswith(".mp4"):
-            video_path = os.path.join("data", "videos", video)
-            extract_video_frames(video_path)
+    if len(sys.argv) < 2:
+        print("Error: Missing command line arguments.")
+        return
 
-    # Remove duplicate frames from all extracted frames directories
-    for file in os.listdir("data/frames"):
-        if os.path.isdir(os.path.join("data", "frames", file)):
-            frames_dir = os.path.join("data", "frames", file)
-            remove_duplicate_frames(frames_dir)
+    args = parse_util_arguments()
+
+    if args.video:
+        # Extract frames from a single video file
+        try:
+            extract_video_frames(args.video)
+            print(f"Frames extracted successfully from video {args.video}.")
+        except Exception as e:
+            print(f"Error extracting frames from video {args.video}: {e}")
+
+    if args.extract_frames:
+        # Extract frames from all videos in the data/videos directory
+        try:
+            process_videos_in_directory("data/videos", extract_video_frames)
+            print("Frames extracted successfully.")
+        except Exception as e:
+            print(f"Error extracting frames from videos in 'data/videos': {e}")
+
+    if args.remove_duplicates:
+        # Remove duplicate frames from all extracted frames directories
+        try:
+            process_frame_directories("data/frames", remove_duplicate_frames)
+            print("Duplicate frames removed successfully.")
+        except Exception as e:
+            print(f"Error removing duplicate frames in 'data/frames': {e}")
+
+    if args.renumber_frames:
+        # Renumber frames in all extracted frames directories
+        try:
+            process_frame_directories("data/frames", renumber_frames)
+            print("Frames renumbered successfully.")
+        except Exception as e:
+            print(f"Error renumbering frames in 'data/frames': {e}")
 
 
 if __name__ == "__main__":

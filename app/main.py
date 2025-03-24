@@ -1,5 +1,5 @@
 from classes.CameraCapture import CameraCapture
-from functions import parse_arguments
+from functions import parse_main_arguments
 
 
 def main():
@@ -20,7 +20,7 @@ def main():
             import sys
 
             if len(sys.argv) > 1:
-                config = parse_arguments()
+                config = parse_main_arguments()
             else:
                 config = {
                     "camera_id": 0,
