@@ -91,7 +91,7 @@ Object_Detection/
 │   ├── masks/
 │   ├── videos/
 │   └── ...
-├── model/ # Not yet implemented
+├── models/ # Not yet implemented
 ├── tests/
 ├── ...
 └── README.md

@@ -1,8 +1,64 @@
 import argparse
 import cv2
+import json
 import numpy as np
 import os
 from config import COLOR_VALUES, OBJECTS_CONFIG
+
+
+def create_annotations():
+    """Generate annotations for YOLO and RF-DETR models."""
+    # Create output directory if it doesn't exist
+    output_dir = os.path.join("data", "models")
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Create annotations file
+    annotations_file = os.path.join(output_dir, "annotations.json")
+
+    # Create annotations dictionary for YOLO and RF-DETR
+    annotations = {"YOLO": [], "RF-DETR": []}
+
+    # Process all object config files
+    for video_filename, config in OBJECTS_CONFIG.items():
+        # Get video resolution
+        video_path = os.path.join("data", "videos", f"{video_filename}.mp4")
+        cap = cv2.VideoCapture(video_path)
+        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        cap.release()
+
+        # Process each object in the config
+        for x1, y1, x2, y2, color in config:
+            # Calculate object center and dimensions
+            center_x = (x1 + x2) / 2 / width
+            center_y = (y1 + y2) / 2 / height
+            obj_width = (x2 - x1) / width
+            obj_height = (y2 - y1) / height
+
+            # Add annotation to YOLO format
+            annotations["YOLO"].append(
+                {
+                    "filename": f"{video_filename}.jpg",
+                    "object": color,
+                    "center_x": center_x,
+                    "center_y": center_y,
+                    "width": obj_width,
+                    "height": obj_height,
+                }
+            )
+
+            # Add annotation to RF-DETR format
+            annotations["RF-DETR"].append(
+                {
+                    "filename": f"{video_filename}.jpg",
+                    "object": color,
+                    "bbox": [x1, y1, x2, y2],
+                }
+            )
+
+    # Save annotations to file
+    with open(annotations_file, "w") as f:
+        json.dump(annotations, f, indent=4)
 
 
 def create_mask(frames_dir):
@@ -47,7 +103,7 @@ def create_mask(frames_dir):
     os.makedirs(output_dir, exist_ok=True)
 
     # Save the mask
-    mask_filename = os.path.join(output_dir, f"{video_filename}.jpg")
+    mask_filename = os.path.join(output_dir, f"{video_filename}.png")
     cv2.imwrite(mask_filename, mask)
 
 
@@ -202,6 +258,11 @@ def parse_main_arguments():
 def parse_util_arguments():
     """Parse command line arguments for the utility script."""
     parser = argparse.ArgumentParser(description="Utility functions for video frames")
+    parser.add_argument(
+        "--create-annotations",
+        action="store_true",
+        help="Generate annotations for YOLO and RF-DETR models",
+    )
     parser.add_argument(
         "--create-masks",
         action="store_true",
