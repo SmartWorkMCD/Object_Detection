@@ -38,7 +38,7 @@ def create_annotations():
             # Add annotation to YOLO format
             annotations["YOLO"].append(
                 {
-                    "filename": f"{video_filename}.jpg",
+                    "video": video_filename,
                     "object": color,
                     "center_x": center_x,
                     "center_y": center_y,
@@ -50,7 +50,7 @@ def create_annotations():
             # Add annotation to RF-DETR format
             annotations["RF-DETR"].append(
                 {
-                    "filename": f"{video_filename}.jpg",
+                    "video": video_filename,
                     "object": color,
                     "bbox": [x1, y1, x2, y2],
                 }
