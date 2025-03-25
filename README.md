@@ -84,15 +84,15 @@ The module is structured as follows:
 ```sh
 Object_Detection/
 ├── app/
+│   ├── classes/
 │   └── ...
 ├── data/
 │   ├── frames/
 │   ├── masks/
+│   ├── videos/
 │   └── ...
-├── model/
-│   └── ...
+├── model/ # Not yet implemented
 ├── tests/
-│   └── ...
 ├── ...
 └── README.md
 ```
