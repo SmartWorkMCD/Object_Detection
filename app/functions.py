@@ -2,6 +2,53 @@ import argparse
 import cv2
 import numpy as np
 import os
+from config import COLOR_VALUES, OBJECTS_CONFIG
+
+
+def create_mask(frames_dir):
+    """
+    Create a color mask for the objects in the video based on the config file.
+
+    Args:
+        frames_dir (str): Path to the directory containing frame images
+    """
+    # Retrieve the config for the video
+    video_filename = os.path.basename(frames_dir)
+    config = OBJECTS_CONFIG.get(video_filename, None)
+
+    # Validate config
+    if config is None:
+        print(f"Error: No config found for video {video_filename}")
+        return
+
+    # Get all image files, sorted by their numeric filename
+    frame_files = sorted(
+        [f for f in os.listdir(frames_dir) if f.lower().endswith(".jpg")],
+        key=frame_key,
+    )
+
+    # If no frames found
+    if not frame_files:
+        print(f"No image files found in {frames_dir}")
+        return
+
+    # Read the first frame to get the dimensions
+    frame = cv2.imread(os.path.join(frames_dir, frame_files[0]))
+
+    # Create the mask
+    mask = np.zeros(frame.shape, dtype=np.uint8)
+
+    # Apply color masks
+    for x1, y1, x2, y2, color in config:
+        cv2.rectangle(mask, (x1, y1), (x2, y2), COLOR_VALUES[color][::-1], 1)
+
+    # Create output directory if it doesn't exist
+    output_dir = os.path.join("data", "masks")
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Save the mask
+    mask_filename = os.path.join(output_dir, f"{video_filename}.jpg")
+    cv2.imwrite(mask_filename, mask)
 
 
 def extract_video_frames(video_path):
@@ -60,6 +107,13 @@ def extract_video_frames(video_path):
     print(f"Extraction complete. Saved {extracted_count} frames from {video_path}")
     print(f"Output directory: {output_dir}")
     print(f"Video details: {width}x{height} at {fps:.2f} FPS")
+
+
+def frame_key(filename):
+    try:
+        return int(os.path.splitext(filename)[0])
+    except ValueError:
+        return float("inf")
 
 
 def hash_frame(frame, hash_size=8):
@@ -148,12 +202,10 @@ def parse_main_arguments():
 def parse_util_arguments():
     """Parse command line arguments for the utility script."""
     parser = argparse.ArgumentParser(description="Utility functions for video frames")
-    parser.add_argument("--video", help="Path to a video file for frame extraction")
     parser.add_argument(
-        "--output-dir", help="Output directory for saving extracted frames"
-    )
-    parser.add_argument(
-        "--log", action="store_true", help="Show detailed extraction progress"
+        "--create-masks",
+        action="store_true",
+        help="Create color masks for each object in the config file",
     )
     parser.add_argument(
         "--extract-frames",
@@ -203,12 +255,6 @@ def remove_duplicate_frames(frames_dir):
         return
 
     # Get all image files, sorted by their numeric filename
-    def frame_key(filename):
-        try:
-            return int(os.path.splitext(filename)[0])
-        except ValueError:
-            return float("inf")
-
     frame_files = sorted(
         [f for f in os.listdir(frames_dir) if f.lower().endswith(".jpg")],
         key=frame_key,
@@ -263,18 +309,16 @@ def renumber_frames(frames_dir):
     Args:
         frames_dir (str): Path to the directory containing frame images
     """
-
-    # Get all image files, sorted by their current filename
-    def frame_key(filename):
-        try:
-            return int(os.path.splitext(filename)[0])
-        except ValueError:
-            return float("inf")
-
+    # Get all image files, sorted by their numeric filename
     frame_files = sorted(
         [f for f in os.listdir(frames_dir) if f.lower().endswith(".jpg")],
         key=frame_key,
     )
+
+    # If no frames found
+    if not frame_files:
+        print(f"No image files found in {frames_dir}")
+        return
 
     # Rename files sequentially
     for new_index, old_filename in enumerate(frame_files):
