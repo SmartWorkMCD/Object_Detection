@@ -1,160 +1,160 @@
 {
     "YOLO": [
         {
-            "filename": "1742573138.jpg",
-            "object": "blue",
+            "video": "1742573138",
+            "color": "blue",
             "center_x": 0.48828125,
             "center_y": 0.6520833333333333,
             "width": 0.0234375,
             "height": 0.029166666666666667
         },
         {
-            "filename": "1742573138.jpg",
-            "object": "blue",
+            "video": "1742573138",
+            "color": "blue",
             "center_x": 0.475,
             "center_y": 0.7072916666666667,
             "width": 0.03125,
             "height": 0.03125
         },
         {
-            "filename": "1742573138.jpg",
-            "object": "green",
+            "video": "1742573138",
+            "color": "green",
             "center_x": 0.4859375,
             "center_y": 0.5833333333333334,
             "width": 0.03125,
             "height": 0.029166666666666667
         },
         {
-            "filename": "1742573138.jpg",
-            "object": "green",
+            "video": "1742573138",
+            "color": "green",
             "center_x": 0.5359375,
             "center_y": 0.6958333333333333,
             "width": 0.021875,
             "height": 0.029166666666666667
         },
         {
-            "filename": "1742573138.jpg",
-            "object": "orange",
+            "video": "1742573138",
+            "color": "orange",
             "center_x": 0.43046875,
             "center_y": 0.5427083333333333,
             "width": 0.0328125,
             "height": 0.03125
         },
         {
-            "filename": "1742573138.jpg",
-            "object": "orange",
+            "video": "1742573138",
+            "color": "orange",
             "center_x": 0.5375,
             "center_y": 0.6666666666666666,
             "width": 0.021875,
             "height": 0.0375
         },
         {
-            "filename": "1742573138.jpg",
-            "object": "red",
+            "video": "1742573138",
+            "color": "red",
             "center_x": 0.4390625,
             "center_y": 0.5802083333333333,
             "width": 0.025,
             "height": 0.03125
         },
         {
-            "filename": "1742573138.jpg",
-            "object": "red",
+            "video": "1742573138",
+            "color": "red",
             "center_x": 0.51953125,
             "center_y": 0.6385416666666667,
             "width": 0.0296875,
             "height": 0.03125
         },
         {
-            "filename": "1742573138.jpg",
-            "object": "yellow",
+            "video": "1742573138",
+            "color": "yellow",
             "center_x": 0.5578125,
             "center_y": 0.528125,
             "width": 0.025,
             "height": 0.03125
         },
         {
-            "filename": "1742573138.jpg",
-            "object": "yellow",
+            "video": "1742573138",
+            "color": "yellow",
             "center_x": 0.56171875,
             "center_y": 0.5947916666666667,
             "width": 0.0234375,
             "height": 0.03958333333333333
         },
         {
-            "filename": "1742573249.jpg",
-            "object": "blue",
+            "video": "1742573249",
+            "color": "blue",
             "center_x": 0.4671875,
             "center_y": 0.5666666666666667,
             "width": 0.028125,
             "height": 0.029166666666666667
         },
         {
-            "filename": "1742573249.jpg",
-            "object": "blue",
+            "video": "1742573249",
+            "color": "blue",
             "center_x": 0.44375,
             "center_y": 0.6291666666666667,
             "width": 0.021875,
             "height": 0.03333333333333333
         },
         {
-            "filename": "1742573249.jpg",
-            "object": "green",
+            "video": "1742573249",
+            "color": "green",
             "center_x": 0.48984375,
             "center_y": 0.603125,
             "width": 0.0171875,
             "height": 0.03125
         },
         {
-            "filename": "1742573249.jpg",
-            "object": "green",
+            "video": "1742573249",
+            "color": "green",
             "center_x": 0.50703125,
             "center_y": 0.659375,
             "width": 0.0328125,
             "height": 0.03125
         },
         {
-            "filename": "1742573249.jpg",
-            "object": "orange",
+            "video": "1742573249",
+            "color": "orange",
             "center_x": 0.5359375,
             "center_y": 0.6197916666666666,
             "width": 0.021875,
             "height": 0.035416666666666666
         },
         {
-            "filename": "1742573249.jpg",
-            "object": "orange",
+            "video": "1742573249",
+            "color": "orange",
             "center_x": 0.5375,
             "center_y": 0.7083333333333334,
             "width": 0.021875,
             "height": 0.04583333333333333
         },
         {
-            "filename": "1742573249.jpg",
-            "object": "red",
+            "video": "1742573249",
+            "color": "red",
             "center_x": 0.4109375,
             "center_y": 0.66875,
             "width": 0.025,
             "height": 0.029166666666666667
         },
         {
-            "filename": "1742573249.jpg",
-            "object": "red",
+            "video": "1742573249",
+            "color": "red",
             "center_x": 0.57109375,
             "center_y": 0.6916666666666667,
             "width": 0.0234375,
             "height": 0.0375
         },
         {
-            "filename": "1742573249.jpg",
-            "object": "yellow",
+            "video": "1742573249",
+            "color": "yellow",
             "center_x": 0.52578125,
             "center_y": 0.45729166666666665,
             "width": 0.0234375,
             "height": 0.035416666666666666
         },
         {
-            "filename": "1742573249.jpg",
-            "object": "yellow",
+            "video": "1742573249",
+            "color": "yellow",
             "center_x": 0.559375,
             "center_y": 0.465625,
             "width": 0.028125,
@@ -163,8 +163,8 @@
     ],
     "RF-DETR": [
         {
-            "filename": "1742573138.jpg",
-            "object": "blue",
+            "video": "1742573138",
+            "color": "blue",
             "bbox": [
                 305,
                 306,
@@ -173,8 +173,8 @@
             ]
         },
         {
-            "filename": "1742573138.jpg",
-            "object": "blue",
+            "video": "1742573138",
+            "color": "blue",
             "bbox": [
                 294,
                 332,
@@ -183,8 +183,8 @@
             ]
         },
         {
-            "filename": "1742573138.jpg",
-            "object": "green",
+            "video": "1742573138",
+            "color": "green",
             "bbox": [
                 301,
                 273,
@@ -193,8 +193,8 @@
             ]
         },
         {
-            "filename": "1742573138.jpg",
-            "object": "green",
+            "video": "1742573138",
+            "color": "green",
             "bbox": [
                 336,
                 327,
@@ -203,8 +203,8 @@
             ]
         },
         {
-            "filename": "1742573138.jpg",
-            "object": "orange",
+            "video": "1742573138",
+            "color": "orange",
             "bbox": [
                 265,
                 253,
@@ -213,8 +213,8 @@
             ]
         },
         {
-            "filename": "1742573138.jpg",
-            "object": "orange",
+            "video": "1742573138",
+            "color": "orange",
             "bbox": [
                 337,
                 311,
@@ -223,8 +223,8 @@
             ]
         },
         {
-            "filename": "1742573138.jpg",
-            "object": "red",
+            "video": "1742573138",
+            "color": "red",
             "bbox": [
                 273,
                 271,
@@ -233,8 +233,8 @@
             ]
         },
         {
-            "filename": "1742573138.jpg",
-            "object": "red",
+            "video": "1742573138",
+            "color": "red",
             "bbox": [
                 323,
                 299,
@@ -243,8 +243,8 @@
             ]
         },
         {
-            "filename": "1742573138.jpg",
-            "object": "yellow",
+            "video": "1742573138",
+            "color": "yellow",
             "bbox": [
                 349,
                 246,
@@ -253,8 +253,8 @@
             ]
         },
         {
-            "filename": "1742573138.jpg",
-            "object": "yellow",
+            "video": "1742573138",
+            "color": "yellow",
             "bbox": [
                 352,
                 276,
@@ -263,8 +263,8 @@
             ]
         },
         {
-            "filename": "1742573249.jpg",
-            "object": "blue",
+            "video": "1742573249",
+            "color": "blue",
             "bbox": [
                 290,
                 265,
@@ -273,8 +273,8 @@
             ]
         },
         {
-            "filename": "1742573249.jpg",
-            "object": "blue",
+            "video": "1742573249",
+            "color": "blue",
             "bbox": [
                 277,
                 294,
@@ -283,8 +283,8 @@
             ]
         },
         {
-            "filename": "1742573249.jpg",
-            "object": "green",
+            "video": "1742573249",
+            "color": "green",
             "bbox": [
                 308,
                 282,
@@ -293,8 +293,8 @@
             ]
         },
         {
-            "filename": "1742573249.jpg",
-            "object": "green",
+            "video": "1742573249",
+            "color": "green",
             "bbox": [
                 314,
                 309,
@@ -303,8 +303,8 @@
             ]
         },
         {
-            "filename": "1742573249.jpg",
-            "object": "orange",
+            "video": "1742573249",
+            "color": "orange",
             "bbox": [
                 336,
                 289,
@@ -313,8 +313,8 @@
             ]
         },
         {
-            "filename": "1742573249.jpg",
-            "object": "orange",
+            "video": "1742573249",
+            "color": "orange",
             "bbox": [
                 337,
                 329,
@@ -323,8 +323,8 @@
             ]
         },
         {
-            "filename": "1742573249.jpg",
-            "object": "red",
+            "video": "1742573249",
+            "color": "red",
             "bbox": [
                 255,
                 314,
@@ -333,8 +333,8 @@
             ]
         },
         {
-            "filename": "1742573249.jpg",
-            "object": "red",
+            "video": "1742573249",
+            "color": "red",
             "bbox": [
                 358,
                 323,
@@ -343,8 +343,8 @@
             ]
         },
         {
-            "filename": "1742573249.jpg",
-            "object": "yellow",
+            "video": "1742573249",
+            "color": "yellow",
             "bbox": [
                 329,
                 211,
@@ -353,8 +353,8 @@
             ]
         },
         {
-            "filename": "1742573249.jpg",
-            "object": "yellow",
+            "video": "1742573249",
+            "color": "yellow",
             "bbox": [
                 349,
                 216,
