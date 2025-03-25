@@ -1,6 +1,6 @@
-import os
 import sys
 from functions import (
+    create_mask,
     extract_video_frames,
     parse_util_arguments,
     process_frame_directories,
@@ -16,14 +16,14 @@ def main():
         return
 
     args = parse_util_arguments()
-
-    if args.video:
-        # Extract frames from a single video file
+    
+    if args.create_masks:
+        # Create color masks for all objects in the config file
         try:
-            extract_video_frames(args.video)
-            print(f"Frames extracted successfully from video {args.video}.")
+            process_frame_directories("data/frames", create_mask)
+            print("Color masks created successfully.")
         except Exception as e:
-            print(f"Error extracting frames from video {args.video}: {e}")
+            print(f"Error creating color masks: {e}")
 
     if args.extract_frames:
         # Extract frames from all videos in the data/videos directory
