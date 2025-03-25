@@ -1,5 +1,6 @@
 import sys
 from functions import (
+    create_annotations,
     create_mask,
     extract_video_frames,
     parse_util_arguments,
@@ -16,7 +17,15 @@ def main():
         return
 
     args = parse_util_arguments()
-    
+
+    if args.create_annotations:
+        # Create annotations for the models
+        try:
+            create_annotations()
+            print("Annotations created successfully.")
+        except Exception as e:
+            print(f"Error creating annotations: {e}")
+
     if args.create_masks:
         # Create color masks for all objects in the config file
         try:
