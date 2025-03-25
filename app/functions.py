@@ -9,7 +9,7 @@ from config import COLOR_VALUES, OBJECTS_CONFIG
 def create_annotations():
     """Generate annotations for YOLO and RF-DETR models."""
     # Create output directory if it doesn't exist
-    output_dir = os.path.join("data", "models")
+    output_dir = "models"
     os.makedirs(output_dir, exist_ok=True)
 
     # Create annotations file
@@ -39,7 +39,7 @@ def create_annotations():
             annotations["YOLO"].append(
                 {
                     "video": video_filename,
-                    "object": color,
+                    "color": color,
                     "center_x": center_x,
                     "center_y": center_y,
                     "width": obj_width,
@@ -51,7 +51,7 @@ def create_annotations():
             annotations["RF-DETR"].append(
                 {
                     "video": video_filename,
-                    "object": color,
+                    "color": color,
                     "bbox": [x1, y1, x2, y2],
                 }
             )
@@ -166,6 +166,7 @@ def extract_video_frames(video_path):
 
 
 def frame_key(filename):
+    """Key function for sorting frame filenames by numeric order."""
     try:
         return int(os.path.splitext(filename)[0])
     except ValueError:
