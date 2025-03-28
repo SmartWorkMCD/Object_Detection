@@ -205,8 +205,8 @@ def hash_frame(frame, hash_size=8):
     return hash_hex
 
 
-def parse_main_arguments():
-    """Parse command line arguments for the main camera capture script."""
+def parse_camera_arguments():
+    """Parse command line arguments for the camera capture script."""
     parser = argparse.ArgumentParser(
         description="Camera capture for Logitech C925e on Raspberry Pi"
     )
