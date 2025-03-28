@@ -6,6 +6,9 @@ import os
 from config import COLOR_VALUES, OBJECTS_CONFIG
 
 
+# ? TODO -> def apply_augmentation(...):
+
+
 def create_annotations():
     """Generate annotations for YOLO and RF-DETR models."""
     # Create output directory if it doesn't exist
