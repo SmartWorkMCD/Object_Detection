@@ -5,9 +5,6 @@ import json
 from app.functions import create_annotations
 
 
-# ! DOES NOT WORK
-
-
 class TestCreateAnnotations(unittest.TestCase):
     @patch("app.functions.os.makedirs")
     @patch("app.functions.json.dump")
