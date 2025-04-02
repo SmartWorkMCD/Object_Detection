@@ -1,3 +1,4 @@
+import albumentations as A
 import argparse
 import cv2
 import json
@@ -6,9 +7,91 @@ import os
 from config import COLOR_VALUES, OBJECTS_CONFIG
 
 
-# ? TODO -> def apply_augmentation(...):
+def apply_augmentation(frames_dir):
+    """
+    Apply augmentations to frames and corresponding masks.
+
+    Args:
+        frames_dir (str): Path to the directory containing frame images
+    """
+    video_filename = os.path.basename(frames_dir)
+    masks_dir = os.path.join("data", "masks")
+    mask = cv2.imread(os.path.join(masks_dir, f"{video_filename}.png"))
+
+    if mask is None:
+        print(f"Error: Mask not found for {video_filename}.png")
+        return
+
+    # Get all image files, sorted by their numeric filename
+    frame_files = sorted(
+        [f for f in os.listdir(frames_dir) if f.lower().endswith(".jpg")],
+        key=frame_key,
+    )
+
+    # If no frames found
+    if not frame_files:
+        print(f"Error: No image files found in {frames_dir}")
+        return
+
+    # Create output directories if they don't exist
+    augmented_frames_path = os.path.join(
+        "data", "augmented_data", "frames", video_filename
+    )
+    augmented_masks_path = os.path.join(
+        "data", "augmented_data", "masks", video_filename
+    )
+    os.makedirs(augmented_frames_path, exist_ok=True)
+    os.makedirs(augmented_masks_path, exist_ok=True)
+
+    # List to store multiple augmentation pipelines
+    augmentation_pipeline = A.Compose(
+        [
+            A.RandomRotate90(p=0.5),
+            A.HorizontalFlip(p=0.5),
+            A.VerticalFlip(p=0.3),
+            A.RandomBrightnessContrast(brightness_limit=0.2, contrast_limit=0.2, p=0.5),
+            A.GaussNoise(p=0.3),
+            A.OneOf(
+                [
+                    A.ElasticTransform(alpha=1, sigma=50, p=0.5),
+                    A.GridDistortion(p=0.5),
+                    A.OpticalDistortion(distort_limit=1.0, p=0.5),
+                ],
+                p=0.3,
+            ),
+            A.Affine(
+                scale=(0.9, 1.1),
+                translate_percent={"x": (-0.1, 0.1), "y": (-0.1, 0.1)},
+                rotate=(-15, 15),
+                interpolation=cv2.INTER_LINEAR,
+                p=0.5,
+            ),
+        ]
+    )
+
+    for frame_file in frame_files:
+        # Get the full path of the frame file
+        frame_path = os.path.join(frames_dir, frame_file)
+
+        # Read the frame
+        frame = cv2.imread(frame_path)
+
+        # Apply the same augmentation to both frame and mask
+        augmented = augmentation_pipeline(image=frame, mask=mask)
+        aug_frame = augmented["image"]
+        aug_mask = augmented["mask"]
+
+        # Keep the original filename
+        frame_name = os.path.splitext(frame_file)[0]
+
+        # Save augmented images
+        aug_frame_filename = os.path.join(augmented_frames_path, frame_name + ".jpg")
+        aug_mask_filename = os.path.join(augmented_masks_path, frame_name + ".png")
+        cv2.imwrite(aug_frame_filename, aug_frame)
+        cv2.imwrite(aug_mask_filename, aug_mask)
 
 
+# ! TODO: Update this function to use the new augmented masks
 def create_annotations():
     """Generate annotations for YOLO and RF-DETR models."""
     # Create output directory if it doesn't exist
@@ -88,7 +171,7 @@ def create_mask(frames_dir):
 
     # If no frames found
     if not frame_files:
-        print(f"No image files found in {frames_dir}")
+        print(f"Error: No image files found in {frames_dir}")
         return
 
     # Read the first frame to get the dimensions
@@ -263,6 +346,11 @@ def parse_util_arguments():
     """Parse command line arguments for the utility script."""
     parser = argparse.ArgumentParser(description="Utility functions for video frames")
     parser.add_argument(
+        "--apply-augmentation",
+        action="store_true",
+        help="Apply augmentations to the dataset",
+    )
+    parser.add_argument(
         "--create-annotations",
         action="store_true",
         help="Generate annotations for YOLO and RF-DETR models",
@@ -327,7 +415,7 @@ def remove_duplicate_frames(frames_dir):
 
     # If no frames found
     if not frame_files:
-        print(f"No image files found in {frames_dir}")
+        print(f"Error: No image files found in {frames_dir}")
         return
 
     # Track unique frames
@@ -336,6 +424,7 @@ def remove_duplicate_frames(frames_dir):
 
     # Process frames
     for frame_file in frame_files:
+        # Get the full path of the frame file
         frame_path = os.path.join(frames_dir, frame_file)
 
         # Read the frame
@@ -382,7 +471,7 @@ def renumber_frames(frames_dir):
 
     # If no frames found
     if not frame_files:
-        print(f"No image files found in {frames_dir}")
+        print(f"Error: No image files found in {frames_dir}")
         return
 
     # Rename files sequentially
