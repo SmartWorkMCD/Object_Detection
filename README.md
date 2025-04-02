@@ -92,8 +92,7 @@ Object_Detection/
 │   │   └── masks/
 │   ├── frames/
 │   ├── masks/
-│   ├── videos/
-│   └── ...
+│   └── videos/
 ├── models/ # Not yet implemented
 ├── tests/
 ├── ...
