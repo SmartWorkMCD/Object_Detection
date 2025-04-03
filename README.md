@@ -20,8 +20,8 @@ Board.
 
 ### Responsible Members
 
-- Main Responsible: Pedro Batista
-- Team: Pedro Batista, Mateus Aleixo, Pedro Mendes, Hugo Veríssimo
+- Main Responsible: Mateus Aleixo
+- Team: Mateus Aleixo, Pedro Batista, Pedro Mendes, Hugo Veríssimo
 
 ## Running the App
 

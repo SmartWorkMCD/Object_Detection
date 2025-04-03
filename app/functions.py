@@ -76,19 +76,24 @@ def apply_augmentation(frames_dir):
         # Read the frame
         frame = cv2.imread(frame_path)
 
-        # Apply the same augmentation to both frame and mask
-        augmented = augmentation_pipeline(image=frame, mask=mask)
-        aug_frame = augmented["image"]
-        aug_mask = augmented["mask"]
+        # Apply augmentations multiple times to increase dataset size
+        for i in range(3):  # Apply augmentations 3 times per frame
+            augmented = augmentation_pipeline(image=frame, mask=mask)
+            aug_frame = augmented["image"]
+            aug_mask = augmented["mask"]
 
-        # Keep the original filename
-        frame_name = os.path.splitext(frame_file)[0]
+            # Generate a unique filename for each augmented version
+            frame_name = os.path.splitext(frame_file)[0]
+            aug_frame_filename = os.path.join(
+                augmented_frames_path, f"frame_{frame_name}_aug_{i}.jpg"
+            )
+            aug_mask_filename = os.path.join(
+                augmented_masks_path, f"frame_{frame_name}_aug_{i}.png"
+            )
 
-        # Save augmented images
-        aug_frame_filename = os.path.join(augmented_frames_path, frame_name + ".jpg")
-        aug_mask_filename = os.path.join(augmented_masks_path, frame_name + ".png")
-        cv2.imwrite(aug_frame_filename, aug_frame)
-        cv2.imwrite(aug_mask_filename, aug_mask)
+            # Save augmented images
+            cv2.imwrite(aug_frame_filename, aug_frame)
+            cv2.imwrite(aug_mask_filename, aug_mask)
 
 
 # ! TODO: Update this function to use the new augmented masks
