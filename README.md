@@ -87,6 +87,7 @@ Object_Detection/
 │   ├── classes/
 │   └── ...
 ├── data/
+│   ├── annotations/
 │   ├── augmented_data/
 │   │   ├── frames/
 │   │   └── masks/

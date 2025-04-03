@@ -1,3 +1,12 @@
+# color: class_id
+COLOR_CLASSES = {
+    "blue": 0,
+    "green": 1,
+    "orange": 2,
+    "red": 3,
+    "yellow": 4,
+}
+
 # color: (red, green, blue)
 COLOR_VALUES = {
     "blue": (0, 0, 255),
