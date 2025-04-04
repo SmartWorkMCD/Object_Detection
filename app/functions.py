@@ -131,14 +131,14 @@ def create_annotations():
             # Read the mask
             mask = cv2.imread(mask_path)
 
-            # Convert the mask to RGB format
-            mask = cv2.cvtColor(mask, cv2.COLOR_BGR2RGB)
-
             # Check if the mask is valid
             if mask is None:
                 print(f"Error: Mask {mask_file} could not be read.")
                 continue
-
+            
+            # Convert the mask to RGB format
+            mask = cv2.cvtColor(mask, cv2.COLOR_BGR2RGB)
+            
             # Apply dilation since lines are thin
             kernel = np.ones((3, 3), np.uint8)
             mask = cv2.dilate(mask, kernel, iterations=1)

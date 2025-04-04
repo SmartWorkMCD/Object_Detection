@@ -93,9 +93,13 @@ Object_Detection/
 │   │   └── masks/
 │   ├── frames/
 │   ├── masks/
+│   ├── split_data/
+│   │   ├── images/
+│   │   └── labels/
 │   └── videos/
-├── models/ # Not yet implemented
+├── models/
 ├── tests/
+├── ultralytics/ # YOLO results
 ├── ...
 └── README.md
 ```
