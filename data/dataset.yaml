@@ -1,0 +1,10 @@
+train: C:/Users/mateu/Downloads/UA/Cadeiras/Seminário/Object_Detection/data/split_data/images/train
+val: C:/Users/mateu/Downloads/UA/Cadeiras/Seminário/Object_Detection/data/split_data/images/val
+
+nc: 5
+names:
+  0: blue
+  1: green
+  2: orange
+  3: red
+  4: yellow
