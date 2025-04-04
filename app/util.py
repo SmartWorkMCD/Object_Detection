@@ -1,5 +1,6 @@
 import sys
 from functions import (
+    apply_augmentation,
     create_annotations,
     create_mask,
     extract_video_frames,
@@ -17,6 +18,14 @@ def main():
         return
 
     args = parse_util_arguments()
+
+    if args.apply_augmentation:
+        # Apply augmentations to the dataset
+        try:
+            process_frame_directories("data/frames", apply_augmentation)
+            print("Dataset augmented successfully.")
+        except Exception as e:
+            print(f"Error augmenting dataset: {e}")
 
     if args.create_annotations:
         # Create annotations for the models

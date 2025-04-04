@@ -20,8 +20,8 @@ Board.
 
 ### Responsible Members
 
-- Main Responsible: Pedro Batista
-- Team: Pedro Batista, Mateus Aleixo, Pedro Mendes, Hugo Veríssimo
+- Main Responsible: Mateus Aleixo
+- Team: Mateus Aleixo, Pedro Batista, Pedro Mendes, Hugo Veríssimo
 
 ## Running the App
 
@@ -87,12 +87,19 @@ Object_Detection/
 │   ├── classes/
 │   └── ...
 ├── data/
+│   ├── annotations/
+│   ├── augmented_data/
+│   │   ├── frames/
+│   │   └── masks/
 │   ├── frames/
 │   ├── masks/
-│   ├── videos/
-│   └── ...
-├── models/ # Not yet implemented
+│   ├── split_data/
+│   │   ├── images/
+│   │   └── labels/
+│   └── videos/
+├── models/
 ├── tests/
+├── ultralytics/ # YOLO results
 ├── ...
 └── README.md
 ```

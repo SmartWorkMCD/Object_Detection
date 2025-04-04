@@ -1,67 +1,210 @@
+import albumentations as A
 import argparse
 import cv2
 import json
 import numpy as np
 import os
-from config import COLOR_VALUES, OBJECTS_CONFIG
+from config import COLOR_CLASSES, COLOR_VALUES, OBJECTS_CONFIG
 
 
-# ? TODO -> def apply_augmentation(...):
+def apply_augmentation(frames_dir):
+    """
+    Apply augmentations to frames and corresponding masks.
+
+    Args:
+        frames_dir (str): Path to the directory containing frame images
+    """
+    video_filename = os.path.basename(frames_dir)
+    masks_dir = os.path.join("data", "masks")
+    mask = cv2.imread(os.path.join(masks_dir, f"{video_filename}.png"))
+
+    if mask is None:
+        print(f"Error: Mask not found for {video_filename}.png")
+        return
+
+    # Get all image files, sorted by their numeric filename
+    frame_files = sorted(
+        [f for f in os.listdir(frames_dir) if f.lower().endswith(".jpg")],
+        key=file_key,
+    )
+
+    # If no frames found
+    if not frame_files:
+        print(f"Error: No image files found in {frames_dir}")
+        return
+
+    # Create output directories if they don't exist
+    augmented_frames_path = os.path.join(
+        "data", "augmented_data", "frames", video_filename
+    )
+    augmented_masks_path = os.path.join(
+        "data", "augmented_data", "masks", video_filename
+    )
+    os.makedirs(augmented_frames_path, exist_ok=True)
+    os.makedirs(augmented_masks_path, exist_ok=True)
+
+    # List to store multiple augmentation pipelines
+    augmentation_pipeline = A.Compose(
+        [
+            A.RandomRotate90(p=0.5),
+            A.HorizontalFlip(p=0.5),
+            A.VerticalFlip(p=0.3),
+            A.RandomBrightnessContrast(brightness_limit=0.2, contrast_limit=0.2, p=0.5),
+            A.GaussNoise(p=0.3),
+            A.OneOf(
+                [
+                    A.ElasticTransform(alpha=1, sigma=50, p=0.5),
+                    A.GridDistortion(p=0.5),
+                    A.OpticalDistortion(distort_limit=1.0, p=0.5),
+                ],
+                p=0.3,
+            ),
+            A.Affine(
+                scale=(0.9, 1.1),
+                translate_percent={"x": (-0.1, 0.1), "y": (-0.1, 0.1)},
+                rotate=(-15, 15),
+                interpolation=cv2.INTER_LINEAR,
+                p=0.5,
+            ),
+        ]
+    )
+
+    for frame_file in frame_files:
+        # Get the full path of the frame file
+        frame_path = os.path.join(frames_dir, frame_file)
+
+        # Read the frame
+        frame = cv2.imread(frame_path)
+
+        # Apply augmentations multiple times to increase dataset size
+        for i in range(3):  # Apply augmentations 3 times per frame
+            augmented = augmentation_pipeline(image=frame, mask=mask)
+            aug_frame = augmented["image"]
+            aug_mask = augmented["mask"]
+
+            # Generate a unique filename for each augmented version
+            frame_name = os.path.splitext(frame_file)[0]
+            aug_frame_filename = os.path.join(
+                augmented_frames_path, f"frame_{frame_name}_aug_{i}.jpg"
+            )
+            aug_mask_filename = os.path.join(
+                augmented_masks_path, f"frame_{frame_name}_aug_{i}.png"
+            )
+
+            # Save augmented images
+            cv2.imwrite(aug_frame_filename, aug_frame)
+            cv2.imwrite(aug_mask_filename, aug_mask)
 
 
 def create_annotations():
-    """Generate annotations for YOLO and RF-DETR models."""
-    # Create output directory if it doesn't exist
-    output_dir = "models"
-    os.makedirs(output_dir, exist_ok=True)
+    """Generate annotations in class_id center_x center_y width height format."""
+    # Create output directories if they don't exist
+    os.makedirs("data/annotations", exist_ok=True)
 
-    # Create annotations file
-    annotations_file = os.path.join(output_dir, "annotations.json")
+    # Get augmented masks directory
+    augmented_masks_dir = os.path.join("data", "augmented_data", "masks")
 
-    # Create annotations dictionary for YOLO and RF-DETR
-    annotations = {"YOLO": [], "RF-DETR": []}
+    # Validate augmented masks directory
+    if not os.path.exists(augmented_masks_dir):
+        print(f"Error: Augmented masks directory {augmented_masks_dir} does not exist.")
+        return
 
-    # Process all object config files
-    for video_filename, config in OBJECTS_CONFIG.items():
-        # Get video resolution
-        video_path = os.path.join("data", "videos", f"{video_filename}.mp4")
-        cap = cv2.VideoCapture(video_path)
-        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        cap.release()
+    for masks_dir in os.listdir(augmented_masks_dir):
+        masks_dir_path = os.path.join(augmented_masks_dir, masks_dir)
 
-        # Process each object in the config
-        for x1, y1, x2, y2, color in config:
-            # Calculate object center and dimensions
-            center_x = (x1 + x2) / 2 / width
-            center_y = (y1 + y2) / 2 / height
-            obj_width = (x2 - x1) / width
-            obj_height = (y2 - y1) / height
+        # Get all mask files, sorted by their numeric filename
+        mask_files = sorted(
+            [f for f in os.listdir(masks_dir_path) if f.lower().endswith(".png")],
+            key=file_key,
+        )
 
-            # Add annotation to YOLO format
-            annotations["YOLO"].append(
-                {
-                    "video": video_filename,
-                    "color": color,
-                    "center_x": center_x,
-                    "center_y": center_y,
-                    "width": obj_width,
-                    "height": obj_height,
-                }
+        # If no masks found
+        if not mask_files:
+            print(f"Error: No mask files found in {masks_dir_path}")
+            return
+
+        # Iterate through each mask file
+        for mask_file in mask_files:
+            # Get the full path of the mask file
+            mask_path = os.path.join(masks_dir_path, mask_file)
+
+            # Read the mask
+            mask = cv2.imread(mask_path)
+
+            # Check if the mask is valid
+            if mask is None:
+                print(f"Error: Mask {mask_file} could not be read.")
+                continue
+            
+            # Convert the mask to RGB format
+            mask = cv2.cvtColor(mask, cv2.COLOR_BGR2RGB)
+            
+            # Apply dilation since lines are thin
+            kernel = np.ones((3, 3), np.uint8)
+            mask = cv2.dilate(mask, kernel, iterations=1)
+
+            # Get the dimensions of the mask
+            height, width, _ = mask.shape
+
+            # Initialize an empty list to store annotations
+            annotations = []
+
+            # Iterate through each color in the mask
+            for color_name, color_value in COLOR_VALUES.items():
+                # Get the class ID for the color
+                class_id = COLOR_CLASSES[color_name]
+
+                # Define lower and upper bounds for color matching with tolerance
+                lower = np.array([max(c - 10, 0) for c in color_value])
+                upper = np.array([min(c + 10, 255) for c in color_value])
+                binary_mask = cv2.inRange(mask, lower, upper)
+
+                # Find contours in the binary mask
+                contours, _ = cv2.findContours(
+                    binary_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+                )
+
+                # Filter contours to ensure only valid objects are considered
+                valid_contours = [
+                    contour for contour in contours if cv2.contourArea(contour) > 10
+                ]
+
+                # Check if we have at least 2 contours; if more, choose the two largest.
+                if len(valid_contours) < 2:
+                    continue
+                elif len(valid_contours) > 2:
+                    valid_contours = sorted(
+                        valid_contours, key=cv2.contourArea, reverse=True
+                    )[:2]
+
+                # Iterate through each valid contour
+                for contour in valid_contours:
+                    # Calculate the bounding rectangle for the contour
+                    x, y, w, h = cv2.boundingRect(contour)
+
+                    # Calculate center coordinates and normalized values
+                    center_x = (x + w / 2) / width
+                    center_y = (y + h / 2) / height
+                    norm_width = w / width
+                    norm_height = h / height
+
+                    # Append the annotation to the list
+                    annotations.append(
+                        f"{class_id} {center_x:.6f} {center_y:.6f} {norm_width:.6f} {norm_height:.6f}"
+                    )
+
+            # Generate the annotation filename based on the mask filename
+            annotation_filename = os.path.splitext(mask_file)[0] + ".txt"
+            annotation_path = os.path.join(
+                "data", "annotations", masks_dir, annotation_filename
             )
 
-            # Add annotation to RF-DETR format
-            annotations["RF-DETR"].append(
-                {
-                    "video": video_filename,
-                    "color": color,
-                    "bbox": [x1, y1, x2, y2],
-                }
-            )
+            # Ensure the directory for the annotation file exists
+            os.makedirs(os.path.dirname(annotation_path), exist_ok=True)
 
-    # Save annotations to file
-    with open(annotations_file, "w") as f:
-        json.dump(annotations, f, indent=4)
+            # Write the annotations to the file
+            with open(annotation_path, "w") as f:
+                f.write("\n".join(annotations))
 
 
 def create_mask(frames_dir):
@@ -83,12 +226,12 @@ def create_mask(frames_dir):
     # Get all image files, sorted by their numeric filename
     frame_files = sorted(
         [f for f in os.listdir(frames_dir) if f.lower().endswith(".jpg")],
-        key=frame_key,
+        key=file_key,
     )
 
     # If no frames found
     if not frame_files:
-        print(f"No image files found in {frames_dir}")
+        print(f"Error: No image files found in {frames_dir}")
         return
 
     # Read the first frame to get the dimensions
@@ -168,8 +311,8 @@ def extract_video_frames(video_path):
     print(f"Video details: {width}x{height} at {fps:.2f} FPS")
 
 
-def frame_key(filename):
-    """Key function for sorting frame filenames by numeric order."""
+def file_key(filename):
+    """Key function for sorting by numeric order."""
     try:
         return int(os.path.splitext(filename)[0])
     except ValueError:
@@ -263,6 +406,11 @@ def parse_util_arguments():
     """Parse command line arguments for the utility script."""
     parser = argparse.ArgumentParser(description="Utility functions for video frames")
     parser.add_argument(
+        "--apply-augmentation",
+        action="store_true",
+        help="Apply augmentations to the dataset",
+    )
+    parser.add_argument(
         "--create-annotations",
         action="store_true",
         help="Generate annotations for YOLO and RF-DETR models",
@@ -322,12 +470,12 @@ def remove_duplicate_frames(frames_dir):
     # Get all image files, sorted by their numeric filename
     frame_files = sorted(
         [f for f in os.listdir(frames_dir) if f.lower().endswith(".jpg")],
-        key=frame_key,
+        key=file_key,
     )
 
     # If no frames found
     if not frame_files:
-        print(f"No image files found in {frames_dir}")
+        print(f"Error: No image files found in {frames_dir}")
         return
 
     # Track unique frames
@@ -336,6 +484,7 @@ def remove_duplicate_frames(frames_dir):
 
     # Process frames
     for frame_file in frame_files:
+        # Get the full path of the frame file
         frame_path = os.path.join(frames_dir, frame_file)
 
         # Read the frame
@@ -377,12 +526,12 @@ def renumber_frames(frames_dir):
     # Get all image files, sorted by their numeric filename
     frame_files = sorted(
         [f for f in os.listdir(frames_dir) if f.lower().endswith(".jpg")],
-        key=frame_key,
+        key=file_key,
     )
 
     # If no frames found
     if not frame_files:
-        print(f"No image files found in {frames_dir}")
+        print(f"Error: No image files found in {frames_dir}")
         return
 
     # Rename files sequentially
