@@ -1,5 +1,6 @@
 train: C:/Users/mateu/Downloads/UA/Cadeiras/Seminário/Object_Detection/data/split_data/images/train
 val: C:/Users/mateu/Downloads/UA/Cadeiras/Seminário/Object_Detection/data/split_data/images/val
+test: C:/Users/mateu/Downloads/UA/Cadeiras/Seminário/Object_Detection/data/split_data/images/test
 
 nc: 5
 names:
