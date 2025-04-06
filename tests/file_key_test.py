@@ -1,7 +1,6 @@
 import unittest
 from app.functions import file_key
 
-
 class TestFileKey(unittest.TestCase):
     def test_file_key_with_numeric_filenames(self):
         self.assertEqual(file_key("123.txt"), 123)
