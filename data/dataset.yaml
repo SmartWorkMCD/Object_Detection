@@ -1,11 +1,3 @@
-train: C:/Users/mateu/Downloads/UA/Cadeiras/Seminário/Object_Detection/data/split_data/images/train
-val: C:/Users/mateu/Downloads/UA/Cadeiras/Seminário/Object_Detection/data/split_data/images/val
-test: C:/Users/mateu/Downloads/UA/Cadeiras/Seminário/Object_Detection/data/split_data/images/test
-
-nc: 5
-names:
-  0: blue
-  1: green
-  2: orange
-  3: red
-  4: yellow
+version https://git-lfs.github.com/spec/v1
+oid sha256:f7d9d5808626314cdcd456f5a3016d0f08d6a617da42081a3656c88918ed674c
+size 374
