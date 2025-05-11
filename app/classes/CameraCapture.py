@@ -17,6 +17,7 @@ class CameraCapture:
         fps: float = 30.0,
         output_dir: str = "data",
         codec: str = "avc1",  # H.264 codec for Pi hardware acceleration
+        send_to_queue: bool = False,
     ):
         """Initialize camera capture with configurable settings.
 
@@ -179,6 +180,11 @@ class CameraCapture:
 
                 # Process the frame
                 frame = self.process_frame(frame)
+                
+                # Send to queue
+                if self.send_to_queue:
+                    # Placeholder for sending frame to a queue
+                    pass
 
                 # Save video frame if enabled
                 if self.save_video and self.video_writer is not None:
