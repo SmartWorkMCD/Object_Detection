@@ -1,5 +1,9 @@
 from classes.CameraCapture import CameraCapture
 from functions import parse_main_arguments
+import warnings
+
+warnings.filterwarnings("ignore")
+
 
 # The script that makes the inference and puts the result in the queue
 def main():
@@ -41,6 +45,7 @@ def main():
         print("\nProgram interrupted by user")
     except Exception as e:
         print(f"Error: {e}")
-    
+
+
 if __name__ == "__main__":
     main()

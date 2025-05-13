@@ -5,34 +5,36 @@ import time
 
 class DetectionInfo:
     """
-    Stores detections from both YOLO and RF-DETR, along with a timestamp.
-    Provides serialization to dict, JSON, and pickle.
+    Stores detections from both YOLO and RF-DETR with timestamp.
+    Supports flat dict, JSON, and pickle serialization.
     """
 
     def __init__(self):
         self.timestamp = time.time()
-        # Structure to hold per-frame results
-        self.yolo_boxes = []  # List of [x1,y1,x2,y2]
-        self.yolo_scores = []  # List of floats
-        self.yolo_classes = []  # List of class names
-        self.rf_boxes = []  # List of normalized [cx,cy,w,h]
-        self.rf_scores = []  # List of floats
-        self.rf_labels = []  # List of ints
+        # YOLO results
+        self.yolo_boxes = []
+        self.yolo_scores = []
+        self.yolo_classes = []
+
+        # RF-DETR results
+        self.rfdetr_boxes = []
+        self.rfdetr_scores = []
+        self.rfdetr_labels = []
 
     def add_yolo(self, boxes, scores, classes):
         self.yolo_boxes.extend(boxes.tolist())
         self.yolo_scores.extend(scores.tolist())
         self.yolo_classes.extend(classes)
 
-    def add_rf_detr(self, boxes, scores, labels):
-        self.rf_boxes.extend(boxes.tolist())
-        self.rf_scores.extend(scores.tolist())
-        self.rf_labels.extend(labels.tolist())
+    def add_rfdetr(self, boxes, scores, labels):
+        self.rfdetr_boxes.extend(boxes.tolist())
+        self.rfdetr_scores.extend(scores.tolist())
+        self.rfdetr_labels.extend(labels)
 
     def to_flat_dict(self):
-        """Return all data in a flat dict with descriptive keys."""
         data = {"timestamp": self.timestamp}
-        # YOLO entries
+
+        # YOLO
         for i, (b, s, c) in enumerate(
             zip(self.yolo_boxes, self.yolo_scores, self.yolo_classes)
         ):
@@ -42,29 +44,29 @@ class DetectionInfo:
             data[f"yolo_{i}_y2"] = b[3]
             data[f"yolo_{i}_score"] = s
             data[f"yolo_{i}_class"] = c
-        # RF-DETR entries
-        for i, (b, s, l) in enumerate(
-            zip(self.rf_boxes, self.rf_scores, self.rf_labels)
+
+        # RF-DETR
+        for i, (b, s, cl) in enumerate(
+            zip(self.rfdetr_boxes, self.rfdetr_scores, self.rfdetr_labels)
         ):
-            data[f"rf_{i}_cx"] = b[0]
-            data[f"rf_{i}_cy"] = b[1]
-            data[f"rf_{i}_w"] = b[2]
-            data[f"rf_{i}_h"] = b[3]
-            data[f"rf_{i}_score"] = s
-            data[f"rf_{i}_label"] = int(l)
+            data[f"rfdetr_{i}_x1"] = b[0]
+            data[f"rfdetr_{i}_y1"] = b[1]
+            data[f"rfdetr_{i}_x2"] = b[2]
+            data[f"rfdetr_{i}_y2"] = b[3]
+            data[f"rfdetr_{i}_confidence"] = s
+            data[f"rfdetr_{i}_class_id"] = cl
         return data
 
     def to_json(self):
-        """Serialize to JSON string."""
         return json.dumps(self.to_flat_dict())
 
     @classmethod
     def from_json(cls, json_str):
-        """Deserialize from JSON string to DetectionInfo."""
         flat = json.loads(json_str)
         obj = cls()
         obj.timestamp = flat.get("timestamp", time.time())
-        # Parse YOLO
+
+        # YOLO
         idx = 0
         while f"yolo_{idx}_x1" in flat:
             b = [
@@ -77,28 +79,29 @@ class DetectionInfo:
             c = flat[f"yolo_{idx}_class"]
             obj.add_yolo([b], [s], [c])
             idx += 1
-        # Parse RF-DETR
+
+        # RF-DETR
         idx = 0
-        while f"rf_{idx}_cx" in flat:
+        while f"rfdetr_{idx}_x1" in flat:
             b = [
-                flat[f"rf_{idx}_cx"],
-                flat[f"rf_{idx}_cy"],
-                flat[f"rf_{idx}_w"],
-                flat[f"rf_{idx}_h"],
+                flat[f"rfdetr_{idx}_x1"],
+                flat[f"rfdetr_{idx}_y1"],
+                flat[f"rfdetr_{idx}_x2"],
+                flat[f"rfdetr_{idx}_y2"],
             ]
-            s = flat[f"rf_{idx}_score"]
-            l = flat[f"rf_{idx}_label"]
-            obj.add_rf_detr([b], [s], [l])
+            s = flat[f"rfdetr_{idx}_confidence"]
+            cl = flat[f"rfdetr_{idx}_class_id"]
+            obj.rfdetr.append(b)
+            obj.rfdetr_confidence.append(s)
+            obj.rfdetr_class_id.append(int(cl))
             idx += 1
         return obj
 
     def to_pickle(self):
-        """Serialize to pickle bytes."""
         return pickle.dumps(self.to_flat_dict())
 
     @classmethod
     def from_pickle(cls, pickle_bytes):
-        """Deserialize from pickle bytes to DetectionInfo."""
         flat = pickle.loads(pickle_bytes)
         return cls.from_json(json.dumps(flat))
 

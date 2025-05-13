@@ -176,7 +176,7 @@ class CameraCapture:
         
         detector = DualDetector(
             yolo_weights_path="../../ultralytics/runs/detect/train/weights/best.pt",
-            rf_detr_model_path="../../models/model_2_2.pth",
+            rfdetr_model_path="../../models/model_2_2.pth",
         )
         print("Detector initialized")
 
@@ -210,11 +210,11 @@ class CameraCapture:
                         preds["yolo"]["scores"],
                         preds["yolo"]["classes"],
                     )
-                    # info.add_rf_detr(
-                    #     preds["rf_detr"]["boxes"],
-                    #     preds["rf_detr"]["scores"],
-                    #     preds["rf_detr"]["labels"],
-                    # )
+                    info.add_rfdetr(
+                        preds["rfdetr"]["boxes"],
+                        preds["rfdetr"]["scores"],
+                        preds["rfdetr"]["labels"],
+                    )
                     info.timestamp = time.time()
                     json_str = info.to_json()
                     client.publish(MQTT_CONFIG.BROKER_TOPIC, json_str)
