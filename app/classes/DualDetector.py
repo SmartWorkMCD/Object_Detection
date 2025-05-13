@@ -12,11 +12,15 @@ class DualDetector:
         rf_detr_model_path: str,
     ):
         # Initialize YOLO model
-        self.yolo = YOLO(yolo_weights_path)
+        self.yolo = YOLO(os.path.join(os.path.dirname(__file__), yolo_weights_path))
+        self.yolo.to("cpu")
 
         # Initialize RF-DETR model
         self.rf_model = torch.load(
-            os.path.abspath(os.path.join(os.path.dirname(__file__), rf_detr_model_path))
+            os.path.abspath(
+                os.path.join(os.path.dirname(__file__), rf_detr_model_path)
+            ),
+            map_location=torch.device("cpu"),
         )
 
     def process_frame(self, frame):
