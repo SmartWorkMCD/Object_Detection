@@ -351,10 +351,10 @@ def hash_frame(frame, hash_size=8):
     return hash_hex
 
 
-def parse_camera_arguments():
-    """Parse command line arguments for the camera capture script."""
+def parse_main_arguments():
+    """Parse command line arguments for the main script."""
     parser = argparse.ArgumentParser(
-        description="Camera capture for Logitech C925e on Raspberry Pi"
+        description="Camera capture and video processing script"
     )
     parser.add_argument("--camera", type=int, default=0, help="Camera device ID")
     parser.add_argument("--flip-v", action="store_true", help="Flip camera vertically")
@@ -382,6 +382,11 @@ def parse_camera_arguments():
         default="avc1",
         help="Video codec (avc1 for H.264 hardware acceleration)",
     )
+    parser.add_argument(
+        "--send-to-queue",
+        action="store_true",
+        help="Send frames to the queue for processing",
+    )
 
     args = parser.parse_args()
 
@@ -399,6 +404,7 @@ def parse_camera_arguments():
         "fps": args.fps,
         "output_dir": args.output_dir,
         "codec": args.codec,
+        "send_to_queue": args.send_to_queue,
     }
 
 

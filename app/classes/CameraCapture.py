@@ -1,7 +1,15 @@
 import cv2
 import os
+import sys
 import time
 from typing import Optional, Tuple
+
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
+
+from comms import init_broker, connect_broker
+from config import MQTT_CONFIG
+from classes.DetectionInfo import DetectionInfo
+from classes.DualDetector import DualDetector
 
 
 class CameraCapture:
@@ -43,6 +51,7 @@ class CameraCapture:
         self.fps = fps
         self.output_dir = output_dir
         self.codec = codec
+        self.send_to_queue = send_to_queue
 
         # Create output directories if they don't exist
         self.frames_dir = os.path.join(output_dir, "frames")
@@ -81,6 +90,7 @@ class CameraCapture:
         actual_width = self.cap.get(cv2.CAP_PROP_FRAME_WIDTH)
         actual_height = self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
         actual_fps = self.cap.get(cv2.CAP_PROP_FPS)
+        self.fps = actual_fps  # Update fps to actual value
 
         print(f"Camera initialized: {actual_width}x{actual_height} at {actual_fps} FPS")
 
@@ -148,8 +158,8 @@ class CameraCapture:
 
         # Report FPS periodically
         if elapsed >= self.fps_report_interval:
-            fps = self.frame_count / elapsed
-            print(f"Performance: {fps:.2f} FPS")
+            fps = round(self.frame_count / elapsed)
+            print(f"Performance: {fps} FPS")
             self.frame_count = 0
             self.last_fps_report = current_time
 
@@ -159,6 +169,16 @@ class CameraCapture:
             return
 
         print("Camera started. Press 'q' to quit, 's' to save a frame.")
+
+        client = init_broker()
+        connect_broker(client)
+        print("Connected to MQTT broker")
+        
+        detector = DualDetector(
+            yolo_weights_path="../../ultralytics/runs/detect/train/weights/best.pt",
+            rf_detr_model_path="../../models/model_2_2.pth",
+        )
+        print("Detector initialized")
 
         try:
             while True:
@@ -180,11 +200,24 @@ class CameraCapture:
 
                 # Process the frame
                 frame = self.process_frame(frame)
-                
+
                 # Send to queue
                 if self.send_to_queue:
-                    # Placeholder for sending frame to a queue
-                    pass
+                    info = DetectionInfo()
+                    preds = detector.process_frame(frame)
+                    info.add_yolo(
+                        preds["yolo"]["boxes"],
+                        preds["yolo"]["scores"],
+                        preds["yolo"]["classes"],
+                    )
+                    # info.add_rf_detr(
+                    #     preds["rf_detr"]["boxes"],
+                    #     preds["rf_detr"]["scores"],
+                    #     preds["rf_detr"]["labels"],
+                    # )
+                    info.timestamp = time.time()
+                    json_str = info.to_json()
+                    client.publish(MQTT_CONFIG.BROKER_TOPIC, json_str)
 
                 # Save video frame if enabled
                 if self.save_video and self.video_writer is not None:
@@ -208,6 +241,11 @@ class CameraCapture:
                         )
                     else:
                         display_frame = frame
+
+                    # Draw detections on the frame
+                    if self.send_to_queue:
+                        display_frame = detector.visualize(display_frame, info)
+
                     cv2.imshow("Camera Feed", display_frame)
 
                 # Handle keyboard commands
@@ -218,6 +256,7 @@ class CameraCapture:
                 elif key == ord("s"):
                     self.capture_image(frame)
 
+                time.sleep(max(0, 1 / self.fps - (time.time() - current_time)))
         finally:
             # Clean up resources
             self.cleanup()
