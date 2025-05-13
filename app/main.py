@@ -36,7 +36,8 @@ def main():
                     "fps": 12.0,
                     "output_dir": "data",
                     "codec": "avc1",
-                    "send_to_queue": True,
+                    "use_yolo": True,
+                    "use_rfdetr": True,
                 }
 
         camera = CameraCapture(**config)

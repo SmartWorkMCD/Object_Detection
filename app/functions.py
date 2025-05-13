@@ -135,10 +135,10 @@ def create_annotations():
             if mask is None:
                 print(f"Error: Mask {mask_file} could not be read.")
                 continue
-            
+
             # Convert the mask to RGB format
             mask = cv2.cvtColor(mask, cv2.COLOR_BGR2RGB)
-            
+
             # Apply dilation since lines are thin
             kernel = np.ones((3, 3), np.uint8)
             mask = cv2.dilate(mask, kernel, iterations=1)
@@ -383,9 +383,14 @@ def parse_main_arguments():
         help="Video codec (avc1 for H.264 hardware acceleration)",
     )
     parser.add_argument(
-        "--send-to-queue",
+        "--use-yolo",
         action="store_true",
-        help="Send frames to the queue for processing",
+        help="Use YOLO for object detection",
+    )
+    parser.add_argument(
+        "--use-rfdetr",
+        action="store_true",
+        help="Use RF-DETR for object detection",
     )
 
     args = parser.parse_args()
@@ -404,7 +409,8 @@ def parse_main_arguments():
         "fps": args.fps,
         "output_dir": args.output_dir,
         "codec": args.codec,
-        "send_to_queue": args.send_to_queue,
+        "use_yolo": args.use_yolo,
+        "use_rfdetr": args.use_rfdetr,
     }
 
 

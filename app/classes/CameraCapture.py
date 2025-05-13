@@ -25,7 +25,8 @@ class CameraCapture:
         fps: float = 30.0,
         output_dir: str = "data",
         codec: str = "avc1",  # H.264 codec for Pi hardware acceleration
-        send_to_queue: bool = False,
+        use_yolo: bool = False,
+        use_rfdetr: bool = False,
     ):
         """Initialize camera capture with configurable settings.
 
@@ -40,6 +41,8 @@ class CameraCapture:
             fps: Frames per second for video recording
             output_dir: Base directory for saving data
             codec: Video codec to use for recording
+            use_yolo: Whether to use YOLO for detection
+            use_rfdetr: Whether to use RF-DETR for detection
         """
         self.camera_id = camera_id
         self.flip_vertical = flip_vertical
@@ -51,7 +54,8 @@ class CameraCapture:
         self.fps = fps
         self.output_dir = output_dir
         self.codec = codec
-        self.send_to_queue = send_to_queue
+        self.use_yolo = use_yolo
+        self.use_rfdetr = use_rfdetr
 
         # Create output directories if they don't exist
         self.frames_dir = os.path.join(output_dir, "frames")
@@ -173,12 +177,23 @@ class CameraCapture:
         client = init_broker()
         connect_broker(client)
         print("Connected to MQTT broker")
-        
+
         detector = DualDetector(
-            yolo_weights_path="../../ultralytics/runs/detect/train/weights/best.pt",
-            rfdetr_model_path="../../models/model_2_2.pth",
+            yolo_weights_path=(
+                "../../ultralytics/runs/detect/train/weights/best.pt"
+                if self.use_yolo
+                else None
+            ),
+            rfdetr_model_path="../../models/model_2_2.pth" if self.use_rfdetr else None,
         )
-        print("Detector initialized")
+
+        if self.use_yolo or self.use_rfdetr:
+            detectors_in_use = []
+            if self.use_yolo:
+                detectors_in_use.append("YOLO")
+            if self.use_rfdetr:
+                detectors_in_use.append("RF-DETR")
+            print(f"Using {', '.join(detectors_in_use)} for detection")
 
         try:
             while True:
@@ -202,19 +217,23 @@ class CameraCapture:
                 frame = self.process_frame(frame)
 
                 # Send to queue
-                if self.send_to_queue:
+                if self.use_yolo or self.use_rfdetr:
                     info = DetectionInfo()
                     preds = detector.process_frame(frame)
-                    info.add_yolo(
-                        preds["yolo"]["boxes"],
-                        preds["yolo"]["scores"],
-                        preds["yolo"]["classes"],
-                    )
-                    info.add_rfdetr(
-                        preds["rfdetr"]["boxes"],
-                        preds["rfdetr"]["scores"],
-                        preds["rfdetr"]["labels"],
-                    )
+
+                    if self.use_yolo:
+                        info.add_yolo(
+                            preds["yolo"]["boxes"],
+                            preds["yolo"]["scores"],
+                            preds["yolo"]["classes"],
+                        )
+                    if self.use_rfdetr:
+                        info.add_rfdetr(
+                            preds["rfdetr"]["boxes"],
+                            preds["rfdetr"]["scores"],
+                            preds["rfdetr"]["labels"],
+                        )
+
                     info.timestamp = time.time()
                     json_str = info.to_json()
                     client.publish(MQTT_CONFIG.BROKER_TOPIC, json_str)
@@ -243,7 +262,7 @@ class CameraCapture:
                         display_frame = frame
 
                     # Draw detections on the frame
-                    if self.send_to_queue:
+                    if self.use_yolo or self.use_rfdetr:
                         display_frame = detector.visualize(display_frame, info)
 
                     cv2.imshow("Camera Feed", display_frame)
