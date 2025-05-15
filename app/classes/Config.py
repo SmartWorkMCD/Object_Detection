@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from IPAddress import IPAddress
+from .IPAddress import IPAddress
 
 
 @dataclass

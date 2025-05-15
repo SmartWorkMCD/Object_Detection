@@ -180,7 +180,7 @@ class CameraCapture:
 
         detector = DualDetector(
             yolo_weights_path=(
-                "../../ultralytics/runs/detect/train/weights/best.pt"
+                "../../runs/detect/train/weights/best.pt"
                 if self.use_yolo
                 else None
             ),
