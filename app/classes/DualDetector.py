@@ -52,7 +52,7 @@ class DualDetector:
             boxes2 = rfdetr_results.xyxy
             scores2 = rfdetr_results.confidence
             labels2 = [
-                ["red", "green", "orange", "blue", "yellow"][i]
+                ["blue", "green", "orange", "red", "yellow"][i]
                 for i in rfdetr_results.class_id
             ]
 
