@@ -184,7 +184,7 @@ class CameraCapture:
                 if self.use_yolo
                 else None
             ),
-            rfdetr_model_path="../../models/model_2_2.pth" if self.use_rfdetr else None,
+            rfdetr_model_path="../../models/rfdetr.pth" if self.use_rfdetr else None,
         )
 
         if self.use_yolo or self.use_rfdetr:

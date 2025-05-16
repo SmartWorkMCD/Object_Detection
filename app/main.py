@@ -24,13 +24,13 @@ def main():
                 "flip_horizontal": False,
                 "show_output": True,
                 "capture_interval": None,  # CAPTURE_IMAGES_EVERY_SECOND
-                "save_video": True,
+                "save_video": False,
                 "resolution": (1080, 720),  # C925e default HD resolution
                 "fps": 12.0,
                 "output_dir": "data",
                 "codec": "avc1",
-                "use_yolo": False,
-                "use_rfdetr": False,
+                "use_yolo": True,
+                "use_rfdetr": True,
             }
 
         camera = CameraCapture(**config)
