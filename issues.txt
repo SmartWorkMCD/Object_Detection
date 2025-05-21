@@ -1,3 +1,0 @@
-YOLO classifies everything correctly (and ignores noise), but struggles with green and blue colors. RF-DETR
-ignores noise and classifies green correctly, but switches yellow with orange and missclassifies red and
-orange as blue and blue as red.
