@@ -123,7 +123,7 @@ The object detection module currently sends detection results as a flat dictiona
     "yolo_1_x2": 300,
     "yolo_1_y2": 220,
     "yolo_1_score": 0.95,
-    "yolo_1_class": "box",
+    "yolo_1_class": "blue",
     "rfdetr_0_x1": 130,
     "rfdetr_0_y1": 90,
     "rfdetr_0_x2": 210,
