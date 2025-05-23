@@ -43,6 +43,7 @@ class DualDetector:
             classes = [
                 yolo_results.names[int(c)] for c in yolo_results.boxes.cls.cpu().numpy()
             ]
+            classes = ["red" if c == "orange" else c for c in classes]
 
         if self.use_rfdetr:
             # --- RF-DETR Inference placeholder ---
@@ -52,7 +53,7 @@ class DualDetector:
             boxes2 = rfdetr_results.xyxy
             scores2 = rfdetr_results.confidence
             labels2 = [
-                ["blue", "green", "orange", "red", "yellow"][i]
+                ["blue", "green", "red", "red", "yellow"][i]
                 for i in rfdetr_results.class_id
             ]
 

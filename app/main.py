@@ -29,7 +29,7 @@ def main():
                 "fps": 12.0,
                 "output_dir": "data",
                 "codec": "avc1",
-                "use_yolo": True,
+                "use_yolo": False,
                 "use_rfdetr": True,
             }
 
