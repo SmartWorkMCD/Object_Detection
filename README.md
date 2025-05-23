@@ -104,6 +104,40 @@ Object_Detection/
 └── README.md
 ```
 
+## MQTT Payload Format
+
+The object detection module currently sends detection results as a flat dictionary (serialized as JSON or pickle) containing both YOLO and RF-DETR outputs. Each detection is represented with indexed keys for bounding box coordinates, scores, and class labels.
+
+**Example flat dictionary payload (JSON):**
+```json
+{
+    "timestamp": 1717267200.123,
+    "yolo_0_x1": 120,
+    "yolo_0_y1": 80,
+    "yolo_0_x2": 200,
+    "yolo_0_y2": 160,
+    "yolo_0_score": 0.98,
+    "yolo_0_class": "red",
+    "yolo_1_x1": 50,
+    "yolo_1_y1": 40,
+    "yolo_1_x2": 300,
+    "yolo_1_y2": 220,
+    "yolo_1_score": 0.95,
+    "yolo_1_class": "blue",
+    "rfdetr_0_x1": 130,
+    "rfdetr_0_y1": 90,
+    "rfdetr_0_x2": 210,
+    "rfdetr_0_y2": 170,
+    "rfdetr_0_confidence": 0.93,
+    "rfdetr_0_class_id": 2
+}
+```
+
+- **YOLO results** are prefixed with `yolo_{i}_` and include bounding box coordinates (`x1`, `y1`, `x2`, `y2`), detection score, and class label.
+- **RF-DETR results** are prefixed with `rfdetr_{i}_` and include bounding box coordinates, confidence score, and class ID.
+
+This flat structure allows easy parsing and supports both JSON and pickle serialization for efficient communication between modules.
+
 ## Contribution Guidelines
 
 To ensure a smooth collaboration, please follow these guidelines:

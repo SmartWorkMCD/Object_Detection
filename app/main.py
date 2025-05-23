@@ -30,7 +30,7 @@ def main():
                 "output_dir": "data",
                 "codec": "avc1",
                 "use_yolo": True,
-                "use_rfdetr": True,
+                "use_rfdetr": False,
             }
 
         camera = CameraCapture(**config)
