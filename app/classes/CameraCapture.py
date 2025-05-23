@@ -179,12 +179,8 @@ class CameraCapture:
         print("Connected to MQTT broker")
 
         detector = DualDetector(
-            yolo_weights_path=(
-                "../../ultralytics/runs/detect/train/weights/best.pt"
-                if self.use_yolo
-                else None
-            ),
-            rfdetr_model_path="../../models/model_2_2.pth" if self.use_rfdetr else None,
+            yolo_weights_path="../../models/yolo.pt" if self.use_yolo else None,
+            rfdetr_model_path="../../models/rfdetr.pth" if self.use_rfdetr else None,
         )
 
         if self.use_yolo or self.use_rfdetr:

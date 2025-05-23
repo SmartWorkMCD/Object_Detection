@@ -37,7 +37,7 @@ class DualDetector:
         """
         if self.use_yolo:
             # --- YOLO Inference ---
-            yolo_results = self.yolo(frame, verbose=False)[0]
+            yolo_results = self.yolo(frame, conf=0.5, verbose=False)[0]
             boxes = yolo_results.boxes.xyxy.cpu().numpy()
             scores = yolo_results.boxes.conf.cpu().numpy()
             classes = [
@@ -46,7 +46,9 @@ class DualDetector:
 
         if self.use_rfdetr:
             # --- RF-DETR Inference placeholder ---
-            rfdetr_results = self.rfdetr_model.predict(Image.fromarray(frame))
+            rfdetr_results = self.rfdetr_model.predict(
+                Image.fromarray(frame), threshold=0.5
+            )
             boxes2 = rfdetr_results.xyxy
             scores2 = rfdetr_results.confidence
             labels2 = [
@@ -94,4 +96,5 @@ class DualDetector:
                     (255, 0, 0),
                     2,
                 )
-            return frame
+
+        return frame

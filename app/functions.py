@@ -1,7 +1,6 @@
 import albumentations as A
 import argparse
 import cv2
-import json
 import numpy as np
 import os
 from config import COLOR_CLASSES, COLOR_VALUES, OBJECTS_CONFIG
@@ -46,23 +45,19 @@ def apply_augmentation(frames_dir):
     # List to store multiple augmentation pipelines
     augmentation_pipeline = A.Compose(
         [
-            A.RandomRotate90(p=0.5),
             A.HorizontalFlip(p=0.5),
-            A.VerticalFlip(p=0.3),
-            A.RandomBrightnessContrast(brightness_limit=0.2, contrast_limit=0.2, p=0.5),
+            A.RandomBrightnessContrast(brightness_limit=0.3, contrast_limit=0.3, p=0.7),
             A.GaussNoise(p=0.3),
-            A.OneOf(
-                [
-                    A.ElasticTransform(alpha=1, sigma=50, p=0.5),
-                    A.GridDistortion(p=0.5),
-                    A.OpticalDistortion(distort_limit=1.0, p=0.5),
-                ],
-                p=0.3,
-            ),
+            A.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1, p=0.5),
+            A.RandomShadow(p=0.3),
+            A.ISONoise(p=0.2),
             A.Affine(
-                scale=(0.9, 1.1),
-                translate_percent={"x": (-0.1, 0.1), "y": (-0.1, 0.1)},
-                rotate=(-15, 15),
+                scale=(0.95, 1.05),
+                translate_percent={
+                    "x": (-0.05, 0.05),
+                    "y": (-0.05, 0.05),
+                },
+                rotate=(-5, 5),
                 interpolation=cv2.INTER_LINEAR,
                 p=0.5,
             ),
@@ -274,7 +269,6 @@ def extract_video_frames(video_path):
         return
 
     # Get video properties
-    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     fps = cap.get(cv2.CAP_PROP_FPS)
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -351,101 +345,38 @@ def hash_frame(frame, hash_size=8):
     return hash_hex
 
 
-def parse_main_arguments():
-    """Parse command line arguments for the main script."""
-    parser = argparse.ArgumentParser(
-        description="Camera capture and video processing script"
-    )
-    parser.add_argument("--camera", type=int, default=0, help="Camera device ID")
-    parser.add_argument("--flip-v", action="store_true", help="Flip camera vertically")
-    parser.add_argument(
-        "--flip-h", action="store_true", help="Flip camera horizontally"
-    )
-    parser.add_argument(
-        "--no-display", action="store_true", help="Don't show camera output"
-    )
-    parser.add_argument(
-        "--interval", type=int, help="Interval in seconds to auto-capture images"
-    )
-    parser.add_argument("--save-video", action="store_true", help="Save video output")
-    parser.add_argument(
-        "--resolution", default="1080x720", help="Resolution in format WIDTHxHEIGHT"
-    )
-    parser.add_argument(
-        "--fps", type=float, default=30.0, help="Frames per second for video"
-    )
-    parser.add_argument(
-        "--output-dir", default="data", help="Base directory for saving data"
-    )
-    parser.add_argument(
-        "--codec",
-        default="avc1",
-        help="Video codec (avc1 for H.264 hardware acceleration)",
-    )
-    parser.add_argument(
-        "--use-yolo",
-        action="store_true",
-        help="Use YOLO for object detection",
-    )
-    parser.add_argument(
-        "--use-rfdetr",
-        action="store_true",
-        help="Use RF-DETR for object detection",
-    )
-
-    args = parser.parse_args()
-
-    # Parse resolution
-    width, height = map(int, args.resolution.split("x"))
-
-    return {
-        "camera_id": args.camera,
-        "flip_vertical": args.flip_v,
-        "flip_horizontal": args.flip_h,
-        "show_output": not args.no_display,
-        "capture_interval": args.interval,
-        "save_video": args.save_video,
-        "resolution": (width, height),
-        "fps": args.fps,
-        "output_dir": args.output_dir,
-        "codec": args.codec,
-        "use_yolo": args.use_yolo,
-        "use_rfdetr": args.use_rfdetr,
-    }
-
-
 def parse_util_arguments():
     """Parse command line arguments for the utility script."""
     parser = argparse.ArgumentParser(description="Utility functions for video frames")
     parser.add_argument(
         "--apply-augmentation",
         action="store_true",
-        help="Apply augmentations to the dataset",
+        help="Apply augmentations to the dataset (requires frames and masks)",
     )
     parser.add_argument(
         "--create-annotations",
         action="store_true",
-        help="Generate annotations for YOLO and RF-DETR models",
+        help="Generate annotations for YOLO and RF-DETR models (requires masks)",
     )
     parser.add_argument(
         "--create-masks",
         action="store_true",
-        help="Create color masks for each object in the config file",
+        help="Create color masks for each object in the config file (requires frames)",
     )
     parser.add_argument(
         "--extract-frames",
         action="store_true",
-        help="Extract frames from each video in the data/videos directory",
+        help="Extract frames from each video in the data/videos directory (requires videos)",
     )
     parser.add_argument(
         "--remove-duplicates",
         action="store_true",
-        help="Remove duplicate frames from each extracted frames directory",
+        help="Remove duplicate frames from each extracted frames directory (requires frames)",
     )
     parser.add_argument(
         "--renumber-frames",
         action="store_true",
-        help="Renumber frames sequentially in each extracted frames directory (after manual removal)",
+        help="Renumber frames sequentially in each extracted frames directory (after manual removal of frames)",
     )
 
     return parser.parse_args()
