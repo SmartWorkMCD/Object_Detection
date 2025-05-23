@@ -248,20 +248,11 @@ class CameraCapture:
 
                 # Display frame if enabled (may impact performance on Pi)
                 if self.show_output:
-                    # Resize for display if resolution is high
-                    if self.resolution[0] > 800:
-                        display_frame = cv2.resize(
-                            frame,
-                            (800, int(800 * self.resolution[1] / self.resolution[0])),
-                        )
-                    else:
-                        display_frame = frame
-
                     # Draw detections on the frame
                     if self.use_yolo or self.use_rfdetr:
-                        display_frame = detector.visualize(display_frame, info)
+                        frame = detector.visualize(frame, info)
 
-                    cv2.imshow("Camera Feed", display_frame)
+                    cv2.imshow("Camera Feed", frame)
 
                 # Handle keyboard commands
                 key = cv2.waitKey(1) & 0xFF
