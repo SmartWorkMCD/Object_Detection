@@ -85,21 +85,15 @@ The module is structured as follows:
 Object_Detection/
 ├── app/
 │   ├── classes/
+│   ├── main.py
 │   └── ...
-├── data/
-│   ├── annotations/
-│   ├── augmented_data/
-│   │   ├── frames/
-│   │   └── masks/
-│   ├── frames/
-│   ├── masks/
-│   ├── split_data/
-│   │   ├── images/
-│   │   └── labels/
-│   └── videos/
 ├── models/
+│   ├── notebooks/
+│   ├── rfdetr.pth
+│   └── yolo.pt
+├── mosquitto/config/
+├── runs/detect/ # YOLO train and val results
 ├── tests/
-├── ultralytics/ # YOLO results
 ├── ...
 └── README.md
 ```
