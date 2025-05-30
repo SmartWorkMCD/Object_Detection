@@ -23,7 +23,7 @@ def main():
                 "camera_id": 0,
                 "flip_vertical": False,
                 "flip_horizontal": False,
-                "show_output": True,
+                "show_output": False,
                 "capture_interval": None,  # CAPTURE_IMAGES_EVERY_SECOND
                 "save_video": False,
                 "resolution": (1080, 720),  # C925e default HD resolution
