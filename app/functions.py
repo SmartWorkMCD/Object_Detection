@@ -3,7 +3,7 @@ import argparse
 import cv2
 import numpy as np
 import os
-from config import COLOR_CLASSES, COLOR_VALUES, OBJECTS_CONFIG
+from app.config import COLOR_CLASSES, COLOR_VALUES, OBJECTS_CONFIG
 
 
 def apply_augmentation(frames_dir):
