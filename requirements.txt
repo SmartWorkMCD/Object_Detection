@@ -40,3 +40,4 @@ ultralytics-thop==2.0.14
 urllib3==2.4.0
 pytest
 pytest-cov
+albumentations
