@@ -20,3 +20,16 @@ services:
       fi && \
       mosquitto -c /mosquitto/config/mosquitto.conf"
     ]
+
+  objectdetection:
+    image: ghcr.io/smartworkmcd/objectdetection:latest
+    container_name: objectdetection
+    restart: unless-stopped
+    depends_on:
+      - mqtt-broker
+    devices:
+      - /dev/video0:/dev/video0
+    environment:
+      - MQTT_HOST=mqtt-broker
+      - MQTT_PORT=1883
+    network_mode: service:mqtt-broker
