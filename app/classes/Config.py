@@ -4,7 +4,7 @@ from .IPAddress import IPAddress
 
 @dataclass
 class Config:
-    BROKER_IP: IPAddress = "127.0.0.1"
+    BROKER_IP: str = "127.0.0.1"
     BROKER_PORT: int = 1883
     BROKER_USER: str = "user"
     BROKER_PASSWORD: str = "password"
