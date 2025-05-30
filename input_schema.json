@@ -1,0 +1,8 @@
+{
+    "station_id": "string",
+    "timestamp": "ISO 8601 string",
+    "assembly_time": "float",
+    "defect_count": "int",
+    "defect_type": "string",
+    "success": "boolean"
+}
