@@ -13,12 +13,11 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt requirements.txt
-
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY ./models/ .
-COPY ./app/ .
+COPY ./models/ ./models/
+COPY ./app/ ./app/
 
 EXPOSE 8000
 
-CMD ["python3", "main.py"]
+CMD ["sh", "-c", "cd app && python3 main.py"]
