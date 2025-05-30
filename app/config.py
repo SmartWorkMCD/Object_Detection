@@ -2,6 +2,7 @@ from classes.Config import Config
 from dataclasses import fields
 from dotenv import load_dotenv
 import os
+from classes.IPAddress import IPAddress
 
 load_dotenv(override=True)
 
@@ -214,6 +215,8 @@ def init_config():
             try:
                 if field.type == bool:
                     value = string_to_bool(value)
+                elif field.type.__name__ == "IPAddress":
+                    value = IPAddress(value)
                 else:
                     value = field.type(value)
                 setattr(config, field.name, value)
