@@ -41,7 +41,7 @@ jobs:
           context: .
           platforms: linux/arm64,linux/amd64
           push: true
-          tags: ghcr.io/${{ env.OWNER_LC }}/objectdetection:lastest
+          tags: ghcr.io/${{ env.OWNER_LC }}/objectdetection:latest
 
       - name: Logout from GitHub Container Registry
         run: docker logout ghcr.io
