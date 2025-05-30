@@ -12,7 +12,7 @@ def main():
             with open("/proc/device-tree/model", "r") as f:
                 model = f.read()
                 if "Raspberry Pi" in model:
-                    print(f"Detected: {model.strip('\0')}")
+                    print(r"Detected: {model.strip('\0')}")
         except:
             pass
 
