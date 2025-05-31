@@ -20,7 +20,19 @@ def init_broker() -> mqtt.Client:
     return client
 
 
-def connect_broker(client: mqtt.Client) -> None:
-    """Connect to the MQTT broker."""
-    client.connect(MQTT_CONFIG.BROKER_IP, MQTT_CONFIG.BROKER_PORT)
-    log_message(f"Connected to broker at {MQTT_CONFIG.BROKER_IP}:{MQTT_CONFIG.BROKER_PORT}")
+def connect_broker(client: mqtt.Client, retries: int = 10, delay: int = 2) -> None:
+
+    #"""Connect to the MQTT broker."""
+    #client.connect(MQTT_CONFIG.BROKER_IP, MQTT_CONFIG.BROKER_PORT)
+    #log_message(f"Connected to broker at {MQTT_CONFIG.BROKER_IP}:{MQTT_CONFIG.BROKER_PORT}")
+
+    for attempt in range(retries):
+        try:
+            client.connect(MQTT_CONFIG.BROKER_IP, MQTT_CONFIG.BROKER_PORT)
+            log_message(f"Connected to broker at {MQTT_CONFIG.BROKER_IP}:{MQTT_CONFIG.BROKER_PORT}")
+            return
+        except Exception as e:
+            log_message(f"Connection attempt {attempt + 1} failed: {e}", level="ERROR")
+            time.sleep(delay)
+    raise ConnectionError("Failed to connect to MQTT broker after retries.")
+
