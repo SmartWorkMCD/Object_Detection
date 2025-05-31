@@ -33,10 +33,10 @@ services:
     devices:
       - /dev/video0:/dev/video0
     environment:
-      - MQTT_HOST=mqtt-broker
-      - MQTT_PORT=1883
-      - MQTT_USER=${BROKER_USER}
-      - MQTT_PASSWORD=${BROKER_PASSWORD}
+      - BROKER_IP=mqtt-broker
+      - BROKER_PORT=1883
+      - BROKER_USER=${BROKER_USER}
+      - BROKER_PASSWORD=${BROKER_PASSWORD}
     networks:
       custom_net:
 
