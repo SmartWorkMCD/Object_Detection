@@ -2,7 +2,7 @@ import cv2
 from DetectionInfo import DetectionInfo
 import os
 from PIL import Image
-import torch
+from rfdetr import RFDETRBase
 from ultralytics import YOLO
 
 
@@ -22,13 +22,11 @@ class DualDetector:
 
         if self.use_rfdetr:
             # Initialize RF-DETR model
-            self.rfdetr_model = torch.load(
-                os.path.abspath(
+            self.rfdetr_model = RFDETRBase(
+                pretrain_weights=os.path.abspath(
                     os.path.join(os.path.dirname(__file__), rfdetr_model_path)
-                ),
-                map_location=torch.device("cpu"),
+                )
             )
-            self.rfdetr_model.model.device = torch.device("cpu")
 
     def process_frame(self, frame):
         """
@@ -53,7 +51,7 @@ class DualDetector:
             boxes2 = rfdetr_results.xyxy
             scores2 = rfdetr_results.confidence
             labels2 = [
-                ["blue", "green", "red", "red", "yellow"][i]
+                ["none", "blue", "green", "red", "red", "yellow"][i]
                 for i in rfdetr_results.class_id
             ]
 
