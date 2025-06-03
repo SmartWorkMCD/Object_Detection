@@ -46,7 +46,7 @@ class DualDetector:
         if self.use_rfdetr:
             # --- RF-DETR Inference placeholder ---
             rfdetr_results = self.rfdetr_model.predict(
-                Image.fromarray(frame), threshold=0.5
+                Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)), threshold=0.5
             )
             boxes2 = rfdetr_results.xyxy
             scores2 = rfdetr_results.confidence
@@ -64,18 +64,27 @@ class DualDetector:
         return results
 
     def visualize(self, frame, info: DetectionInfo):
+        if self.use_yolo or self.use_rfdetr:
+            COLOR_VALUES = {
+                "blue": (255, 0, 0),
+                "green": (0, 255, 0),
+                "red": (0, 0, 255),
+                "yellow": (0, 255, 255),
+            }
+
         if self.use_yolo:
             # Draw YOLO
             for b, s, c in zip(info.yolo_boxes, info.yolo_scores, info.yolo_classes):
                 x1, y1, x2, y2 = map(int, b)
-                cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                color = COLOR_VALUES.get(c, (255, 255, 255))
+                cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
                 cv2.putText(
                     frame,
-                    f"{c} {s:.2f}",
+                    f"YOLO: {c.capitalize()} {s:.2f}",
                     (x1, y1 - 5),
                     cv2.FONT_HERSHEY_SIMPLEX,
                     0.5,
-                    (0, 255, 0),
+                    color,
                     2,
                 )
 
@@ -85,14 +94,15 @@ class DualDetector:
                 info.rfdetr_boxes, info.rfdetr_scores, info.rfdetr_labels
             ):
                 x1, y1, x2, y2 = map(int, b)
-                cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 0), 2)
+                color = COLOR_VALUES.get(cl, (255, 255, 255))
+                cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
                 cv2.putText(
                     frame,
-                    f"{cl} {s:.2f}",
-                    (x1, y1 - 5),
+                    f"RF-DETR: {cl.capitalize()} {s:.2f}",
+                    (x1, y2 + 10),
                     cv2.FONT_HERSHEY_SIMPLEX,
                     0.5,
-                    (255, 0, 0),
+                    color,
                     2,
                 )
 
