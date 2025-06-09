@@ -9,6 +9,7 @@ RUN apt-get update && \
         git \
         libgl1 \
         libglib2.0-0 \
+        cmake build-essential \
     && apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
