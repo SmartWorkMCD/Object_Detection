@@ -77,7 +77,7 @@ class CameraCapture:
     def setup(self) -> bool:
         """Set up camera and video writer. Returns True if successful."""
         # Initialize camera
-        self.cap = cv2.VideoCapture(self.camera_id)
+        self.cap = cv2.VideoCapture(self.camera_id,cv2.CAP_V4L)
         if not self.cap.isOpened():
             print(f"Error: Could not open camera {self.camera_id}")
             return False
