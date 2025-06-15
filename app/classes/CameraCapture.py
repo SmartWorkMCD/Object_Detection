@@ -11,7 +11,26 @@ from config import MQTT_CONFIG
 from classes.DetectionInfo import DetectionInfo
 from classes.DualDetector import DualDetector
 
+def find_and_open_camera():
+    """
+    Attempts to open a camera by iterating through common indices.
+    Returns the VideoCapture object if successful, None otherwise.
+    """
+    max_cameras_to_check = 5  # Check indices from 0 up to 4
 
+    for i in range(max_cameras_to_check):
+        print(f"Attempting to open camera with index {i}...")
+        cap = cv2.VideoCapture(i)
+
+        if cap.isOpened():
+            print(f"Successfully opened camera with index {i}.")
+            return cap
+        else:
+            print(f"Failed to open camera with index {i}.")
+            cap.release() # Release if not opened to clean up
+
+    print("Error: Could not open any camera. Please check camera connections, permissions, or if another application is using the camera.")
+    return None
 class CameraCapture:
     def __init__(
         self,
@@ -77,9 +96,12 @@ class CameraCapture:
     def setup(self) -> bool:
         """Set up camera and video writer. Returns True if successful."""
         # Initialize camera
-        self.cap = cv2.VideoCapture(self.camera_id,cv2.CAP_V4L)
+        self.cap = cv2.VideoCapture(self.camera_id)
         if not self.cap.isOpened():
             print(f"Error: Could not open camera {self.camera_id}")
+            self.cap = find_and_open_camera()
+            if self.cap is None or not self.cap.isOpened():
+                print("Error: No camera available. Please check connections or permissions.")
             return False
 
         # Logitech C925e specific settings
