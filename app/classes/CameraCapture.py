@@ -102,7 +102,7 @@ class CameraCapture:
             self.cap = find_and_open_camera()
             if self.cap is None or not self.cap.isOpened():
                 print("Error: No camera available. Please check connections or permissions.")
-            return False
+                return False
 
         # Logitech C925e specific settings
         # Set preferred resolution
